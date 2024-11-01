@@ -1,4 +1,10 @@
 # train.py - Training script for Transformer model using YAML configuration and Weights & Biases (W&B) logging
+import sys
+import os
+
+# Add the src directory to the path
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+
 
 import torch
 import torch.optim as optim

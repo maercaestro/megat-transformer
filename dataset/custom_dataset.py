@@ -46,3 +46,45 @@ class CustomDataset(Dataset):
         else:
             ids = ids[:self.max_len]
         return ids
+    
+import pandas as pd
+
+class VocabularyBuilder:
+    def __init__(self, data_path):
+        """
+        Initializes the VocabularyBuilder with the path to the dataset.
+        
+        Args:
+            data_path (str): Path to the CSV file containing source and target texts.
+        """
+        self.data_path = data_path
+        self.vocab = {"<pad>": 0, "<unk>": 1}  # Start with special tokens
+        self.max_len = 0
+
+    def build(self):
+        """
+        Builds the vocabulary and calculates the maximum sequence length.
+        
+        Returns:
+            tuple: (vocab, max_len), where vocab is a dictionary mapping each unique token to a unique ID,
+                   and max_len is an integer representing the longest sequence length in the dataset.
+        """
+        data = pd.read_csv(self.data_path)
+
+        for _, row in data.iterrows():
+            for text in [row["source_text"], row["translated_text"]]:
+                tokens = text.split()
+                self.max_len = max(self.max_len, len(tokens))  # Update max_len for the longest sequence
+                for token in tokens:
+                    if token not in self.vocab:
+                        self.vocab[token] = len(self.vocab)
+
+        return self.vocab, self.max_len
+
+    def get_vocab(self):
+        """Returns the generated vocabulary dictionary."""
+        return self.vocab
+
+    def get_max_len(self):
+        """Returns the maximum sequence length found in the dataset."""
+        return self.max_len

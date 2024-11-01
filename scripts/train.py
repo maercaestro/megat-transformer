@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader, Subset
 import wandb
 from src.transformer import Transformer
 from config.config import load_config
-from dataset.custom_dataset import CustomDataset  
+from dataset.custom_dataset import CustomDataset,VocabularyBuilder
 
 def train(model, dataloader, criterion, optimizer, device):
     model.train()
@@ -45,6 +45,8 @@ def main():
     
     # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    vocab_builder = VocabularyBuilder(config['data']['data_path'])
+    vocab, max_len = vocab_builder.build()
     
     # Initialize model with parameters from config.yaml
     model = Transformer(

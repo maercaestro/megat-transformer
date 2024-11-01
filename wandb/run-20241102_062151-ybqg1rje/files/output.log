@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/scripts/train.py", line 100, in <module>
+    main()
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/scripts/train.py", line 48, in main
+    vocab_builder = VocabularyBuilder(config['data']['data_path'])
+KeyError: 'data_path'

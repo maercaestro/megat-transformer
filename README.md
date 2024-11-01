@@ -1,8 +1,3 @@
-Here’s a `README.md` file for your `megat-transformer` repository. This README includes details about the project, implementation, setup, usage, and relevant references to the original "Attention Is All You Need" paper.
-
----
-
-```markdown
 # Megat Transformer
 
 **Megat Transformer** is an implementation of the Transformer model, inspired by the groundbreaking paper ["Attention Is All You Need"](https://arxiv.org/abs/1706.03762) by Vaswani et al. This project is designed to provide a comprehensive and flexible Transformer architecture for a variety of NLP tasks, with modular components such as multi-head attention, positional encoding, and feed-forward networks.
@@ -105,8 +100,4 @@ This project supports experiment tracking and checkpoint saving using [Weights &
 ---
 
 With Megat Transformer, you can explore and experiment with the powerful Transformer architecture and customize it for various NLP tasks. Happy training!
-```
 
----
-
-This `README.md` file provides an overview of the project, a brief background on the Transformer model, setup instructions, usage guidelines, and component explanations. Let me know if you'd like any additional information included!

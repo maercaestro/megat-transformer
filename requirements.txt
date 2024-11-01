@@ -1,0 +1,12 @@
+# Core Libraries
+torch>=1.8.0      # PyTorch, core deep learning framework
+numpy>=1.18.0     # Numerical computations
+pandas>=1.1.0     # Data handling (if your dataset processing requires it)
+pyyaml>=5.3       # YAML parsing for configuration files
+
+# Experiment Tracking (Optional)
+wandb>=0.10.0     # Weights & Biases for experiment tracking and logging
+
+# Testing Libraries
+pytest>=6.0       # Pytest, for running tests
+unittest          # Standard Python testing library

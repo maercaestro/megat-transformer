@@ -1,8 +1,9 @@
-# train.py - Training script for Transformer model using YAML configuration
+# train.py - Training script for Transformer model using YAML configuration and Weights & Biases (W&B) logging
 
 import torch
 import torch.optim as optim
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Subset
+import wandb  # Add Weights & Biases for experiment tracking
 from src.transformer import Transformer
 from config.config import load_config  # Import YAML config loader
 from dataset.custom_dataset import CustomDataset  
@@ -30,6 +31,13 @@ def main():
     # Load configuration from YAML file
     config = load_config()  # Assumes config.yaml is in the same directory
     
+    # Initialize Weights & Biases (W&B)
+    wandb.init(
+        project="megat-transformer",
+        config=config,
+        name="Transformer Training on 300,000 Rows",
+    )
+    
     # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
@@ -49,19 +57,28 @@ def main():
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=config['training']['learning_rate'])
     
-    # Load training data
+    # Load training data and select a subset of 300,000 rows
     train_dataset = CustomDataset(data_path=config['data']['train_data_path'])
-    train_dataloader = DataLoader(train_dataset, batch_size=config['training']['batch_size'], shuffle=True)
+    subset_indices = list(range(300000))  # Use the first 300,000 rows
+    train_subset = Subset(train_dataset, subset_indices)
+    train_dataloader = DataLoader(train_subset, batch_size=config['training']['batch_size'], shuffle=True)
     
     # Training loop
     for epoch in range(config['training']['epochs']):
         train_loss = train(model, train_dataloader, criterion, optimizer, device)
+        
+        # Log loss to W&B
+        wandb.log({"epoch": epoch+1, "train_loss": train_loss})
         print(f"Epoch {epoch+1}/{config['training']['epochs']}, Loss: {train_loss:.4f}")
         
-        # Optionally save the model after each epoch
+        # Optionally save the model after each epoch to W&B and local storage
         if config['training']['save_model']:
             model_save_path = f"{config['training']['model_save_path']}model_epoch_{epoch+1}.pt"
             torch.save(model.state_dict(), model_save_path)
+            wandb.save(model_save_path)  # Save checkpoint to W&B for future access
+
+    # Finish W&B run
+    wandb.finish()
 
 if __name__ == "__main__":
     main()

@@ -24,7 +24,7 @@ megat-transformer/
 │   ├── transformer.py            # Main Transformer model
 │   ├── attention.py              # Attention mechanisms (e.g., multi-head attention)
 │   └── utils.py                  # Utility classes (e.g., embedding, positional encoding)
-├── dataset/
+├── data/
 │   └── combined_dataset.csv      # Example dataset (to be replaced with your own data)
 ├── scripts/
 │   ├── train.py                  # Training script
@@ -34,6 +34,9 @@ megat-transformer/
 │   ├── test_decoder.py           # Tests for decoder components
 │   ├── test_transformer.py       # Tests for the Transformer model
 │   └── test_utils.py             # Tests for utility classes
+├── notebook/
+│   ├── attention-abu.ipynb       # Notebook for exploring the attention mechanism
+│   └── dataset-preparation.ipynb # Notebook for preparing and processing the dataset
 ├── requirements.txt              # Python package dependencies
 └── README.md                     # Project documentation
 ```

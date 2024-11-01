@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/scripts/train.py", line 90, in <module>
+    main()
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/scripts/train.py", line 67, in main
+    train_dataset = CustomDataset(data_path=config['data']['train_data_path'])
+TypeError: CustomDataset.__init__() missing 2 required positional arguments: 'vocab' and 'max_len'

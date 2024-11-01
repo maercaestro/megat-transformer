@@ -1,17 +1,16 @@
-# train.py - Training script for Transformer model using YAML configuration and Weights & Biases (W&B) logging
 import sys
 import os
+from sklearn.model_selection import train_test_split
 
 # Add the src directory to the path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-
 import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader, Subset
-import wandb  # Add Weights & Biases for experiment tracking
+import wandb
 from src.transformer import Transformer
-from config.config import load_config  # Import YAML config loader
+from config.config import load_config
 from dataset.custom_dataset import CustomDataset  
 
 def train(model, dataloader, criterion, optimizer, device):
@@ -35,7 +34,7 @@ def train(model, dataloader, criterion, optimizer, device):
 
 def main():
     # Load configuration from YAML file
-    config = load_config()  # Assumes config.yaml is in the same directory
+    config = load_config()
     
     # Initialize Weights & Biases (W&B)
     wandb.init(
@@ -63,17 +62,26 @@ def main():
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=config['training']['learning_rate'])
     
-    # Load training data and select a subset of 300,000 rows
-    train_dataset = CustomDataset(data_path=config['data']['train_data_path'])
-    subset_indices = list(range(300000))  # Use the first 300,000 rows
-    train_subset = Subset(train_dataset, subset_indices)
+    # Initialize vocab and dataset
+    vocab = config['data']['vocab']  # Assume vocab is loaded from config.yaml
+    max_len = config['model']['max_len']
+    dataset = CustomDataset(data_path=config['data']['data_path'], vocab=vocab, max_len=max_len)
+    
+    # Select 300,000 rows and split into training (80%) and validation (20%)
+    subset_indices = list(range(300000))  # Use only the first 300,000 rows
+    train_indices, val_indices = train_test_split(subset_indices, test_size=0.2, random_state=42)
+    
+    train_subset = Subset(dataset, train_indices)
+    val_subset = Subset(dataset, val_indices)
+    
     train_dataloader = DataLoader(train_subset, batch_size=config['training']['batch_size'], shuffle=True)
+    val_dataloader = DataLoader(val_subset, batch_size=config['training']['batch_size'], shuffle=False)
     
     # Training loop
     for epoch in range(config['training']['epochs']):
         train_loss = train(model, train_dataloader, criterion, optimizer, device)
         
-        # Log loss to W&B
+        # Log training loss to W&B
         wandb.log({"epoch": epoch+1, "train_loss": train_loss})
         print(f"Epoch {epoch+1}/{config['training']['epochs']}, Loss: {train_loss:.4f}")
         

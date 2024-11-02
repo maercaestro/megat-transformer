@@ -1,5 +1,3 @@
-# train.py - Training script for Transformer model using YAML configuration and Weights & Biases (W&B) logging
-
 import sys
 import os
 import torch
@@ -9,7 +7,39 @@ import wandb
 from sklearn.model_selection import train_test_split
 from src.transformer import Transformer
 from config.config import load_config
-from dataset.custom_dataset import CustomDataset,VocabularyBuilder  
+from dataset.custom_dataset import CustomDataset  
+from dataset.custom_dataset import VocabularyBuilder  # Import the VocabularyBuilder class
+
+def pad_collate_fn(batch):
+    """
+    Collate function that pads sequences in each batch to the maximum length
+    within the batch for proper batching.
+
+    Args:
+        batch (list of dicts): Each item is a dictionary with 'input' and 'target'.
+
+    Returns:
+        dict: A dictionary containing padded 'input' and 'target' tensors.
+    """
+    # Extract input and target sequences
+    inputs = [item['input'] for item in batch]
+    targets = [item['target'] for item in batch]
+    
+    # Determine the maximum length in this batch
+    max_len = max([len(seq) for seq in inputs + targets])
+    
+    # Use 0 as the pad token (make sure this matches the vocabulary)
+    pad_token_id = 0
+
+    # Pad each input and target to the maximum length
+    padded_inputs = [torch.cat([seq, torch.full((max_len - len(seq),), pad_token_id, dtype=torch.long)]) for seq in inputs]
+    padded_targets = [torch.cat([seq, torch.full((max_len - len(seq),), pad_token_id, dtype=torch.long)]) for seq in targets]
+    
+    # Stack into a batch
+    return {
+        'input': torch.stack(padded_inputs),
+        'target': torch.stack(padded_targets)
+    }
 
 def train(model, dataloader, criterion, optimizer, device, epoch):
     model.train()
@@ -50,14 +80,21 @@ def main():
     # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
+    # Build vocabulary and get max_len from data_path
+    vocab_builder = VocabularyBuilder(config['data']['data_path'])
+    vocab, max_len = vocab_builder.build()
+    
+    # Calculate vocab size
+    vocab_size = len(vocab)  # Use this for src_vocab_size and tgt_vocab_size
+
     # Initialize model with parameters from config.yaml
     model = Transformer(
         num_layers=config['model']['num_layers'],
         d_model=config['model']['d_model'],
         h=config['model']['num_heads'],
         d_ff=config['model']['d_ff'],
-        src_vocab_size=config['model']['src_vocab_size'],
-        tgt_vocab_size=config['model']['tgt_vocab_size'],
+        src_vocab_size=vocab_size,  # Set the vocab size here
+        tgt_vocab_size=vocab_size,  # Set the vocab size here
         max_len=config['model']['max_len'],
         dropout=config['model']['dropout']
     ).to(device)
@@ -66,10 +103,6 @@ def main():
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=config['training']['learning_rate'])
     
-    # Load vocab and max_len from config
-    vocab_builder = VocabularyBuilder(config['data']['data_path'])
-    vocab, max_len = vocab_builder.build()
-
     # Initialize dataset
     dataset = CustomDataset(data_path=config['data']['data_path'], vocab=vocab, max_len=max_len)
     
@@ -79,8 +112,9 @@ def main():
     train_subset = Subset(dataset, train_indices)
     val_subset = Subset(dataset, val_indices)
 
-    train_dataloader = DataLoader(train_subset, batch_size=config['training']['batch_size'], shuffle=True)
-    val_dataloader = DataLoader(val_subset, batch_size=config['training']['batch_size'], shuffle=False)
+    # Use the collate_fn argument for padding within batches
+    train_dataloader = DataLoader(train_subset, batch_size=config['training']['batch_size'], shuffle=True, collate_fn=pad_collate_fn)
+    val_dataloader = DataLoader(val_subset, batch_size=config['training']['batch_size'], shuffle=False, collate_fn=pad_collate_fn)
     
     # Training loop
     for epoch in range(config['training']['epochs']):

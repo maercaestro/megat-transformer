@@ -1,0 +1,26 @@
+Traceback (most recent call last):
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/scripts/train.py", line 131, in <module>
+    main()
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/scripts/train.py", line 115, in main
+    train_loss = train(model, train_dataloader, criterion, optimizer, device, epoch)
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/scripts/train.py", line 49, in train
+    outputs = model(inputs, targets)
+  File "/Users/abuhuzaifahbidin/miniforge3/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/src/transformer.py", line 33, in forward
+    enc_output = self.encoder(src, src_mask)
+  File "/Users/abuhuzaifahbidin/miniforge3/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/src/encoder.py", line 67, in forward
+    x = self.input_embedding(x)
+  File "/Users/abuhuzaifahbidin/miniforge3/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/src/utils.py", line 23, in forward
+    return self.embedding(x)
+  File "/Users/abuhuzaifahbidin/miniforge3/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/abuhuzaifahbidin/miniforge3/lib/python3.10/site-packages/torch/nn/modules/sparse.py", line 162, in forward
+    return F.embedding(
+  File "/Users/abuhuzaifahbidin/miniforge3/lib/python3.10/site-packages/torch/nn/functional.py", line 2210, in embedding
+    return torch.embedding(weight, input, padding_idx, scale_grad_by_freq, sparse)
+IndexError: index out of range in self

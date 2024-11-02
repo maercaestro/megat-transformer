@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/scripts/train.py", line 100, in <module>
+    main()
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/scripts/train.py", line 84, in main
+    train_loss = train(model, train_dataloader, criterion, optimizer, device)
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/scripts/train.py", line 20, in train
+    for batch in dataloader:
+  File "/Users/abuhuzaifahbidin/miniforge3/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 633, in __next__
+    data = self._next_data()
+  File "/Users/abuhuzaifahbidin/miniforge3/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 677, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+  File "/Users/abuhuzaifahbidin/miniforge3/lib/python3.10/site-packages/torch/utils/data/_utils/fetch.py", line 51, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/Users/abuhuzaifahbidin/miniforge3/lib/python3.10/site-packages/torch/utils/data/_utils/fetch.py", line 51, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/Users/abuhuzaifahbidin/miniforge3/lib/python3.10/site-packages/torch/utils/data/dataset.py", line 298, in __getitem__
+    return self.dataset[self.indices[idx]]
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/dataset/custom_dataset.py", line 34, in __getitem__
+    'input': torch.tensor(src_ids, dtype=torch.long),
+TypeError: 'NoneType' object cannot be interpreted as an integer

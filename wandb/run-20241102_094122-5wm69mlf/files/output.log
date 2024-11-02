@@ -1,0 +1,28 @@
+Traceback (most recent call last):
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/scripts/train.py", line 100, in <module>
+    main()
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/scripts/train.py", line 84, in main
+    train_loss = train(model, train_dataloader, criterion, optimizer, device)
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/scripts/train.py", line 24, in train
+    outputs = model(inputs, targets)
+  File "/Users/abuhuzaifahbidin/miniforge3/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/src/transformer.py", line 34, in forward
+    dec_output = self.decoder(tgt, enc_output, tgt_mask, memory_mask)
+  File "/Users/abuhuzaifahbidin/miniforge3/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/src/decoder.py", line 75, in forward
+    x = layer(x,enc_output,tgt_mask, memory_mask)
+  File "/Users/abuhuzaifahbidin/miniforge3/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/src/decoder.py", line 35, in forward
+    x = self.norm_layers[1](x+ self.dropout[1](self.enc_dec_attn(x, enc_output,enc_output,memory_mask)))
+  File "/Users/abuhuzaifahbidin/miniforge3/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/src/attention.py", line 61, in forward
+    x, attn = self.attention(query, key, value, mask = mask)
+  File "/Users/abuhuzaifahbidin/miniforge3/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/src/attention.py", line 27, in forward
+    if mask is not None:
+KeyboardInterrupt

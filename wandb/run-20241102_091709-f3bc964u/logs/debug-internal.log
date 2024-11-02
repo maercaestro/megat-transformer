@@ -1,0 +1,207 @@
+2024-11-02 09:17:09,887 INFO    StreamThr :38905 [internal.py:wandb_internal():86] W&B internal server running at pid: 38905, started at: 2024-11-02 09:17:09.885982
+2024-11-02 09:17:09,891 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: status
+2024-11-02 09:17:09,894 INFO    WriterThread:38905 [datastore.py:open_for_write():85] open: /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/run-f3bc964u.wandb
+2024-11-02 09:17:09,894 DEBUG   SenderThread:38905 [sender.py:send():379] send: header
+2024-11-02 09:17:09,919 DEBUG   SenderThread:38905 [sender.py:send():379] send: run
+2024-11-02 09:17:10,600 INFO    SenderThread:38905 [dir_watcher.py:__init__():211] watching files in: /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files
+2024-11-02 09:17:10,600 INFO    SenderThread:38905 [sender.py:_start_run_threads():1122] run started: f3bc964u with start time 1730510229.888485
+2024-11-02 09:17:10,604 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: summary_record
+2024-11-02 09:17:10,604 INFO    SenderThread:38905 [sender.py:_save_file():1376] saving file wandb-summary.json with policy end
+2024-11-02 09:17:10,615 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: check_version
+2024-11-02 09:17:10,615 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: check_version
+2024-11-02 09:17:10,784 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: run_start
+2024-11-02 09:17:10,795 DEBUG   HandlerThread:38905 [system_info.py:__init__():31] System info init
+2024-11-02 09:17:10,795 DEBUG   HandlerThread:38905 [system_info.py:__init__():46] System info init done
+2024-11-02 09:17:10,796 INFO    HandlerThread:38905 [system_monitor.py:start():181] Starting system monitor
+2024-11-02 09:17:10,796 INFO    SystemMonitor:38905 [system_monitor.py:_start():145] Starting system asset monitoring threads
+2024-11-02 09:17:10,796 INFO    HandlerThread:38905 [system_monitor.py:probe():201] Collecting system info
+2024-11-02 09:17:10,797 INFO    SystemMonitor:38905 [interfaces.py:start():190] Started cpu monitoring
+2024-11-02 09:17:10,797 INFO    SystemMonitor:38905 [interfaces.py:start():190] Started disk monitoring
+2024-11-02 09:17:10,797 DEBUG   HandlerThread:38905 [system_info.py:probe():195] Probing system
+2024-11-02 09:17:10,800 INFO    SystemMonitor:38905 [interfaces.py:start():190] Started gpuapple monitoring
+2024-11-02 09:17:10,801 INFO    SystemMonitor:38905 [interfaces.py:start():190] Started memory monitoring
+2024-11-02 09:17:10,802 INFO    SystemMonitor:38905 [interfaces.py:start():190] Started network monitoring
+2024-11-02 09:17:10,809 DEBUG   HandlerThread:38905 [system_info.py:_probe_git():180] Probing git
+2024-11-02 09:17:10,839 DEBUG   HandlerThread:38905 [system_info.py:_probe_git():188] Probing git done
+2024-11-02 09:17:10,839 DEBUG   HandlerThread:38905 [system_info.py:probe():240] Probing system done
+2024-11-02 09:17:10,839 DEBUG   HandlerThread:38905 [system_monitor.py:probe():210] {'os': 'macOS-15.0.1-arm64-arm-64bit', 'python': '3.10.9', 'heartbeatAt': '2024-11-02T01:17:10.797583', 'startedAt': '2024-11-02T01:17:09.877108', 'docker': None, 'cuda': None, 'args': (), 'state': 'running', 'program': '/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/scripts/train.py', 'codePath': 'scripts/train.py', 'git': {'remote': 'https://github.com/maercaestro/megat-transformer.git', 'commit': 'f94ff8cf8d80d6ee93b88da90cd5bc1fe018b182'}, 'email': 'maercaestro@gmail.com', 'root': '/Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer', 'host': 'Abus-MacBook-Air.local', 'username': 'abuhuzaifahbidin', 'executable': '/Users/abuhuzaifahbidin/miniforge3/bin/python', 'cpu_count': 8, 'cpu_count_logical': 8, 'disk': {'total': 228.27386474609375, 'used': 207.77843856811523}, 'gpuapple': {'type': 'arm', 'vendor': 'Apple'}, 'memory': {'total': 8.0}}
+2024-11-02 09:17:10,840 INFO    HandlerThread:38905 [system_monitor.py:probe():211] Finished collecting system info
+2024-11-02 09:17:10,840 INFO    HandlerThread:38905 [system_monitor.py:probe():214] Publishing system info
+2024-11-02 09:17:10,840 DEBUG   HandlerThread:38905 [system_info.py:_save_pip():51] Saving list of pip packages installed into the current environment
+2024-11-02 09:17:10,841 DEBUG   HandlerThread:38905 [system_info.py:_save_pip():67] Saving pip packages done
+2024-11-02 09:17:10,841 DEBUG   HandlerThread:38905 [system_info.py:_save_conda():74] Saving list of conda packages installed into the current environment
+2024-11-02 09:17:11,601 INFO    Thread-12 :38905 [dir_watcher.py:_on_file_created():272] file/dir created: /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/conda-environment.yaml
+2024-11-02 09:17:11,601 INFO    Thread-12 :38905 [dir_watcher.py:_on_file_created():272] file/dir created: /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/requirements.txt
+2024-11-02 09:17:11,602 INFO    Thread-12 :38905 [dir_watcher.py:_on_file_created():272] file/dir created: /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/wandb-summary.json
+2024-11-02 09:17:21,126 DEBUG   HandlerThread:38905 [system_info.py:_save_conda():86] Saving conda packages done
+2024-11-02 09:17:21,126 INFO    HandlerThread:38905 [system_monitor.py:probe():216] Finished publishing system info
+2024-11-02 09:17:21,133 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: status_report
+2024-11-02 09:17:21,133 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: keepalive
+2024-11-02 09:17:21,133 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: status_report
+2024-11-02 09:17:21,134 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: keepalive
+2024-11-02 09:17:21,134 DEBUG   SenderThread:38905 [sender.py:send():379] send: files
+2024-11-02 09:17:21,134 INFO    SenderThread:38905 [sender.py:_save_file():1376] saving file wandb-metadata.json with policy now
+2024-11-02 09:17:21,137 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: stop_status
+2024-11-02 09:17:21,137 DEBUG   SenderThread:38905 [sender.py:send():379] send: telemetry
+2024-11-02 09:17:21,137 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: stop_status
+2024-11-02 09:17:21,648 INFO    Thread-12 :38905 [dir_watcher.py:_on_file_modified():289] file/dir modified: /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/conda-environment.yaml
+2024-11-02 09:17:21,650 INFO    Thread-12 :38905 [dir_watcher.py:_on_file_created():272] file/dir created: /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/wandb-metadata.json
+2024-11-02 09:17:22,022 INFO    wandb-upload_0:38905 [upload_job.py:push():131] Uploaded file /var/folders/v4/jpplyq9d7vj4bb3_yglz32000000gn/T/tmpggbdbgvgwandb/8zw6druc-wandb-metadata.json
+2024-11-02 09:17:26,570 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: status_report
+2024-11-02 09:17:31,595 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: status_report
+2024-11-02 09:17:36,152 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: stop_status
+2024-11-02 09:17:36,153 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: stop_status
+2024-11-02 09:17:37,445 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: status_report
+2024-11-02 09:17:42,471 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: status_report
+2024-11-02 09:17:42,750 INFO    Thread-12 :38905 [dir_watcher.py:_on_file_modified():289] file/dir modified: /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/config.yaml
+2024-11-02 09:17:47,763 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: status_report
+2024-11-02 09:17:51,163 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: stop_status
+2024-11-02 09:17:51,164 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: stop_status
+2024-11-02 09:17:53,554 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: status_report
+2024-11-02 09:17:58,572 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: status_report
+2024-11-02 09:18:03,593 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: status_report
+2024-11-02 09:18:06,186 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: stop_status
+2024-11-02 09:18:06,186 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: stop_status
+2024-11-02 09:18:09,592 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: status_report
+2024-11-02 09:18:10,800 DEBUG   SystemMonitor:38905 [system_monitor.py:_start():159] Starting system metrics aggregation loop
+2024-11-02 09:18:10,802 DEBUG   SenderThread:38905 [sender.py:send():379] send: telemetry
+2024-11-02 09:18:10,802 DEBUG   SenderThread:38905 [sender.py:send():379] send: stats
+2024-11-02 09:18:14,690 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: status_report
+2024-11-02 09:18:14,907 INFO    Thread-12 :38905 [dir_watcher.py:_on_file_created():272] file/dir created: /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/output.log
+2024-11-02 09:18:14,999 DEBUG   SenderThread:38905 [sender.py:send():379] send: exit
+2024-11-02 09:18:14,999 INFO    SenderThread:38905 [sender.py:send_exit():584] handling exit code: 1
+2024-11-02 09:18:14,999 INFO    SenderThread:38905 [sender.py:send_exit():586] handling runtime: 63
+2024-11-02 09:18:15,000 INFO    SenderThread:38905 [sender.py:_save_file():1376] saving file wandb-summary.json with policy end
+2024-11-02 09:18:15,000 INFO    SenderThread:38905 [sender.py:send_exit():592] send defer
+2024-11-02 09:18:15,000 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: defer
+2024-11-02 09:18:15,000 INFO    HandlerThread:38905 [handler.py:handle_request_defer():170] handle defer: 0
+2024-11-02 09:18:15,000 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: defer
+2024-11-02 09:18:15,000 INFO    SenderThread:38905 [sender.py:send_request_defer():608] handle sender defer: 0
+2024-11-02 09:18:15,000 INFO    SenderThread:38905 [sender.py:transition_state():612] send defer: 1
+2024-11-02 09:18:15,000 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: defer
+2024-11-02 09:18:15,000 INFO    HandlerThread:38905 [handler.py:handle_request_defer():170] handle defer: 1
+2024-11-02 09:18:15,000 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: defer
+2024-11-02 09:18:15,000 INFO    SenderThread:38905 [sender.py:send_request_defer():608] handle sender defer: 1
+2024-11-02 09:18:15,000 INFO    SenderThread:38905 [sender.py:transition_state():612] send defer: 2
+2024-11-02 09:18:15,001 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: defer
+2024-11-02 09:18:15,001 INFO    HandlerThread:38905 [handler.py:handle_request_defer():170] handle defer: 2
+2024-11-02 09:18:15,001 INFO    HandlerThread:38905 [system_monitor.py:finish():190] Stopping system monitor
+2024-11-02 09:18:15,001 DEBUG   SystemMonitor:38905 [system_monitor.py:_start():166] Finished system metrics aggregation loop
+2024-11-02 09:18:15,001 DEBUG   SystemMonitor:38905 [system_monitor.py:_start():170] Publishing last batch of metrics
+2024-11-02 09:18:15,001 INFO    HandlerThread:38905 [interfaces.py:finish():202] Joined cpu monitor
+2024-11-02 09:18:15,001 INFO    HandlerThread:38905 [interfaces.py:finish():202] Joined disk monitor
+2024-11-02 09:18:15,001 INFO    HandlerThread:38905 [interfaces.py:finish():202] Joined gpuapple monitor
+2024-11-02 09:18:15,001 INFO    HandlerThread:38905 [interfaces.py:finish():202] Joined memory monitor
+2024-11-02 09:18:15,002 INFO    HandlerThread:38905 [interfaces.py:finish():202] Joined network monitor
+2024-11-02 09:18:15,002 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: defer
+2024-11-02 09:18:15,002 INFO    SenderThread:38905 [sender.py:send_request_defer():608] handle sender defer: 2
+2024-11-02 09:18:15,002 INFO    SenderThread:38905 [sender.py:transition_state():612] send defer: 3
+2024-11-02 09:18:15,002 DEBUG   SenderThread:38905 [sender.py:send():379] send: stats
+2024-11-02 09:18:15,002 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: defer
+2024-11-02 09:18:15,002 INFO    HandlerThread:38905 [handler.py:handle_request_defer():170] handle defer: 3
+2024-11-02 09:18:15,002 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: defer
+2024-11-02 09:18:15,002 INFO    SenderThread:38905 [sender.py:send_request_defer():608] handle sender defer: 3
+2024-11-02 09:18:15,002 INFO    SenderThread:38905 [sender.py:transition_state():612] send defer: 4
+2024-11-02 09:18:15,002 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: defer
+2024-11-02 09:18:15,002 INFO    HandlerThread:38905 [handler.py:handle_request_defer():170] handle defer: 4
+2024-11-02 09:18:15,002 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: defer
+2024-11-02 09:18:15,003 INFO    SenderThread:38905 [sender.py:send_request_defer():608] handle sender defer: 4
+2024-11-02 09:18:15,003 INFO    SenderThread:38905 [sender.py:transition_state():612] send defer: 5
+2024-11-02 09:18:15,003 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: defer
+2024-11-02 09:18:15,003 INFO    HandlerThread:38905 [handler.py:handle_request_defer():170] handle defer: 5
+2024-11-02 09:18:15,003 DEBUG   SenderThread:38905 [sender.py:send():379] send: summary
+2024-11-02 09:18:15,003 INFO    SenderThread:38905 [sender.py:_save_file():1376] saving file wandb-summary.json with policy end
+2024-11-02 09:18:15,003 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: defer
+2024-11-02 09:18:15,003 INFO    SenderThread:38905 [sender.py:send_request_defer():608] handle sender defer: 5
+2024-11-02 09:18:15,003 INFO    SenderThread:38905 [sender.py:transition_state():612] send defer: 6
+2024-11-02 09:18:15,003 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: defer
+2024-11-02 09:18:15,003 INFO    HandlerThread:38905 [handler.py:handle_request_defer():170] handle defer: 6
+2024-11-02 09:18:15,003 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: defer
+2024-11-02 09:18:15,003 INFO    SenderThread:38905 [sender.py:send_request_defer():608] handle sender defer: 6
+2024-11-02 09:18:15,003 INFO    SenderThread:38905 [sender.py:transition_state():612] send defer: 7
+2024-11-02 09:18:15,004 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: status_report
+2024-11-02 09:18:15,004 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: defer
+2024-11-02 09:18:15,004 INFO    HandlerThread:38905 [handler.py:handle_request_defer():170] handle defer: 7
+2024-11-02 09:18:15,004 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: defer
+2024-11-02 09:18:15,004 INFO    SenderThread:38905 [sender.py:send_request_defer():608] handle sender defer: 7
+2024-11-02 09:18:15,696 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: poll_exit
+2024-11-02 09:18:15,914 INFO    Thread-12 :38905 [dir_watcher.py:_on_file_modified():289] file/dir modified: /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/config.yaml
+2024-11-02 09:18:15,915 INFO    Thread-12 :38905 [dir_watcher.py:_on_file_modified():289] file/dir modified: /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/wandb-summary.json
+2024-11-02 09:18:16,702 INFO    SenderThread:38905 [sender.py:transition_state():612] send defer: 8
+2024-11-02 09:18:16,702 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: poll_exit
+2024-11-02 09:18:16,702 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: defer
+2024-11-02 09:18:16,702 INFO    HandlerThread:38905 [handler.py:handle_request_defer():170] handle defer: 8
+2024-11-02 09:18:16,703 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: defer
+2024-11-02 09:18:16,703 INFO    SenderThread:38905 [sender.py:send_request_defer():608] handle sender defer: 8
+2024-11-02 09:18:16,703 INFO    SenderThread:38905 [job_builder.py:build():280] Attempting to build job artifact
+2024-11-02 09:18:16,704 INFO    SenderThread:38905 [job_builder.py:_get_source_type():389] is repo sourced job
+2024-11-02 09:18:16,706 INFO    SenderThread:38905 [job_builder.py:build():363] adding wandb-job metadata file
+2024-11-02 09:18:16,711 INFO    SenderThread:38905 [sender.py:transition_state():612] send defer: 9
+2024-11-02 09:18:16,711 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: defer
+2024-11-02 09:18:16,711 DEBUG   SenderThread:38905 [sender.py:send():379] send: artifact
+2024-11-02 09:18:16,711 INFO    HandlerThread:38905 [handler.py:handle_request_defer():170] handle defer: 9
+2024-11-02 09:18:16,920 INFO    Thread-12 :38905 [dir_watcher.py:_on_file_modified():289] file/dir modified: /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/output.log
+2024-11-02 09:18:18,480 INFO    SenderThread:38905 [sender.py:send_artifact():1476] sent artifact job-https___github.com_maercaestro_megat-transformer.git_scripts_train.py - {'id': 'QXJ0aWZhY3Q6MTMwNDU5OTE4MQ==', 'digest': '000c3180b8c2af5382b315fd39e1db77', 'state': 'COMMITTED', 'aliases': [{'artifactCollectionName': 'job-https___github.com_maercaestro_megat-transformer.git_scripts_train.py', 'alias': 'latest'}, {'artifactCollectionName': 'job-https___github.com_maercaestro_megat-transformer.git_scripts_train.py', 'alias': 'v2'}], 'artifactSequence': {'id': 'QXJ0aWZhY3RDb2xsZWN0aW9uOjQ4Mzg2MjYxNg==', 'latestArtifact': {'id': 'QXJ0aWZhY3Q6MTMwNDU5OTE4MQ==', 'versionIndex': 2}}, 'version': 'v2'}
+2024-11-02 09:18:18,481 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: defer
+2024-11-02 09:18:18,481 INFO    SenderThread:38905 [sender.py:send_request_defer():608] handle sender defer: 9
+2024-11-02 09:18:18,481 INFO    SenderThread:38905 [dir_watcher.py:finish():359] shutting down directory watcher
+2024-11-02 09:18:18,932 INFO    SenderThread:38905 [dir_watcher.py:finish():389] scan: /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files
+2024-11-02 09:18:18,933 INFO    SenderThread:38905 [dir_watcher.py:finish():403] scan save: /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/requirements.txt requirements.txt
+2024-11-02 09:18:18,934 INFO    SenderThread:38905 [dir_watcher.py:finish():403] scan save: /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/output.log output.log
+2024-11-02 09:18:18,939 INFO    SenderThread:38905 [dir_watcher.py:finish():403] scan save: /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/config.yaml config.yaml
+2024-11-02 09:18:18,942 INFO    SenderThread:38905 [dir_watcher.py:finish():403] scan save: /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/wandb-summary.json wandb-summary.json
+2024-11-02 09:18:18,946 INFO    SenderThread:38905 [dir_watcher.py:finish():403] scan save: /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/conda-environment.yaml conda-environment.yaml
+2024-11-02 09:18:18,949 INFO    SenderThread:38905 [dir_watcher.py:finish():403] scan save: /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/wandb-metadata.json wandb-metadata.json
+2024-11-02 09:18:18,949 INFO    SenderThread:38905 [sender.py:transition_state():612] send defer: 10
+2024-11-02 09:18:18,952 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: defer
+2024-11-02 09:18:18,952 INFO    HandlerThread:38905 [handler.py:handle_request_defer():170] handle defer: 10
+2024-11-02 09:18:18,953 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: defer
+2024-11-02 09:18:18,953 INFO    SenderThread:38905 [sender.py:send_request_defer():608] handle sender defer: 10
+2024-11-02 09:18:18,953 INFO    SenderThread:38905 [file_pusher.py:finish():159] shutting down file pusher
+2024-11-02 09:18:19,707 INFO    wandb-upload_2:38905 [upload_job.py:push():131] Uploaded file /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/config.yaml
+2024-11-02 09:18:19,724 INFO    wandb-upload_1:38905 [upload_job.py:push():131] Uploaded file /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/output.log
+2024-11-02 09:18:19,750 INFO    wandb-upload_0:38905 [upload_job.py:push():131] Uploaded file /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/requirements.txt
+2024-11-02 09:18:19,758 INFO    wandb-upload_3:38905 [upload_job.py:push():131] Uploaded file /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/wandb-summary.json
+2024-11-02 09:18:20,719 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: keepalive
+2024-11-02 09:18:20,730 INFO    wandb-upload_4:38905 [upload_job.py:push():131] Uploaded file /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/files/conda-environment.yaml
+2024-11-02 09:18:20,935 INFO    Thread-11 (_thread_body):38905 [sender.py:transition_state():612] send defer: 11
+2024-11-02 09:18:20,936 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: defer
+2024-11-02 09:18:20,936 INFO    HandlerThread:38905 [handler.py:handle_request_defer():170] handle defer: 11
+2024-11-02 09:18:20,937 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: defer
+2024-11-02 09:18:20,937 INFO    SenderThread:38905 [sender.py:send_request_defer():608] handle sender defer: 11
+2024-11-02 09:18:20,937 INFO    SenderThread:38905 [file_pusher.py:join():164] waiting for file pusher
+2024-11-02 09:18:20,937 INFO    SenderThread:38905 [sender.py:transition_state():612] send defer: 12
+2024-11-02 09:18:20,938 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: defer
+2024-11-02 09:18:20,938 INFO    HandlerThread:38905 [handler.py:handle_request_defer():170] handle defer: 12
+2024-11-02 09:18:20,938 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: status_report
+2024-11-02 09:18:20,938 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: defer
+2024-11-02 09:18:20,939 INFO    SenderThread:38905 [sender.py:send_request_defer():608] handle sender defer: 12
+2024-11-02 09:18:22,068 INFO    SenderThread:38905 [sender.py:transition_state():612] send defer: 13
+2024-11-02 09:18:22,068 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: defer
+2024-11-02 09:18:22,069 INFO    HandlerThread:38905 [handler.py:handle_request_defer():170] handle defer: 13
+2024-11-02 09:18:22,069 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: defer
+2024-11-02 09:18:22,069 INFO    SenderThread:38905 [sender.py:send_request_defer():608] handle sender defer: 13
+2024-11-02 09:18:22,069 INFO    SenderThread:38905 [sender.py:transition_state():612] send defer: 14
+2024-11-02 09:18:22,070 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: defer
+2024-11-02 09:18:22,070 DEBUG   SenderThread:38905 [sender.py:send():379] send: final
+2024-11-02 09:18:22,070 INFO    HandlerThread:38905 [handler.py:handle_request_defer():170] handle defer: 14
+2024-11-02 09:18:22,070 DEBUG   SenderThread:38905 [sender.py:send():379] send: footer
+2024-11-02 09:18:22,070 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: defer
+2024-11-02 09:18:22,071 INFO    SenderThread:38905 [sender.py:send_request_defer():608] handle sender defer: 14
+2024-11-02 09:18:22,071 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: poll_exit
+2024-11-02 09:18:22,072 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: server_info
+2024-11-02 09:18:22,072 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: poll_exit
+2024-11-02 09:18:22,072 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: get_summary
+2024-11-02 09:18:22,073 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: server_info
+2024-11-02 09:18:22,073 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: sampled_history
+2024-11-02 09:18:22,076 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: job_info
+2024-11-02 09:18:22,351 DEBUG   SenderThread:38905 [sender.py:send_request():406] send_request: job_info
+2024-11-02 09:18:22,352 INFO    MainThread:38905 [wandb_run.py:_footer_history_summary_info():3475] rendering history
+2024-11-02 09:18:22,352 INFO    MainThread:38905 [wandb_run.py:_footer_history_summary_info():3507] rendering summary
+2024-11-02 09:18:22,352 INFO    MainThread:38905 [wandb_run.py:_footer_sync_info():3434] logging synced files
+2024-11-02 09:18:22,353 DEBUG   HandlerThread:38905 [handler.py:handle_request():144] handle_request: shutdown
+2024-11-02 09:18:22,353 INFO    HandlerThread:38905 [handler.py:finish():857] shutting down handler
+2024-11-02 09:18:23,082 INFO    WriterThread:38905 [datastore.py:close():294] close: /Users/abuhuzaifahbidin/Documents/GitHub/megat-transformer/wandb/run-20241102_091709-f3bc964u/run-f3bc964u.wandb
+2024-11-02 09:18:23,356 INFO    SenderThread:38905 [sender.py:finish():1552] shutting down sender
+2024-11-02 09:18:23,356 INFO    SenderThread:38905 [file_pusher.py:finish():159] shutting down file pusher
+2024-11-02 09:18:23,357 INFO    SenderThread:38905 [file_pusher.py:join():164] waiting for file pusher

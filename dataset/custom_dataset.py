@@ -16,7 +16,7 @@ class CustomDataset(Dataset):
             max_len (int): Maximum sequence length for truncation.
         """
         # Load the data and filter out empty sequences
-        data = pd.read_csv(data_path)
+        data = pd.read_csv(data_path,on_bad_lines='skip')
         filtered_data = data[data["source_text"].str.strip().astype(bool) & data["translated_text"].str.strip().astype(bool)]
         self.data = filtered_data.reset_index(drop=True)
         self.vocab = vocab

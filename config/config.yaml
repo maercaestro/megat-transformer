@@ -10,13 +10,13 @@ model:
 
 training:
   epochs: 10
-  batch_size: 32
+  batch_size: 16
   learning_rate: 0.001
   save_model: true
   model_save_path: "./models/"
 
 evaluation:
-  batch_size: 32
+  batch_size: 16
   model_load_path: "./models/model_epoch_10.pt"  # Example path for the trained model
 
 data:

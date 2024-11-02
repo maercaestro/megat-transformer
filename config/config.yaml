@@ -1,11 +1,11 @@
 model:
-  num_layers: 6           # Number of encoder and decoder layers
-  d_model: 512            # Dimension of the model
-  num_heads: 8            # Number of attention heads
-  d_ff: 2048              # Dimension of the feed-forward layer
+  num_layers: 4           # Number of encoder and decoder layers
+  d_model: 256            # Dimension of the model
+  num_heads: 4            # Number of attention heads
+  d_ff: 512              # Dimension of the feed-forward layer
   src_vocab_size: 10000   # Size of the source vocabulary
   tgt_vocab_size: 10000   # Size of the target vocabulary
-  max_len: 512            # Maximum length of the input sequence
+  max_len: 128           # Maximum length of the input sequence
   dropout: 0.1            # Dropout probability
 
 training:

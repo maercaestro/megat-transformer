@@ -74,7 +74,7 @@ def main():
     wandb.init(
         project="megat-transformer",
         config=config,
-        name="Transformer Training on 300,000 Rows",
+        name="Transformer Training on 30,000 Rows",
     )
     
     # Set device
@@ -107,7 +107,7 @@ def main():
     dataset = CustomDataset(data_path=config['data']['data_path'], vocab=vocab, max_len=max_len)
     
     # Select a subset of 300,000 rows and split into training and validation
-    subset_indices = list(range(300000))
+    subset_indices = list(range(30000))
     train_indices, val_indices = train_test_split(subset_indices, test_size=0.2, random_state=42)
     train_subset = Subset(dataset, train_indices)
     val_subset = Subset(dataset, val_indices)

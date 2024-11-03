@@ -9,7 +9,7 @@ import wandb
 from config.config import load_config
 
 # Load configuration
-config = load_config()
+config = load_config("config.yaml")
 
 # Initialize wandb
 wandb.init(project="transformer_training", config=config)
@@ -20,7 +20,7 @@ LEARNING_RATE = config["training"]["learning_rate"]
 EPOCHS = config["training"]["epochs"]
 NUM_LAYERS = config["model"]["num_layers"]
 D_MODEL = config["model"]["d_model"]
-N_HEADS = config["model"]["num_heads"]
+N_HEADS = config["model"]["h"]
 D_FF = config["model"]["d_ff"]
 SOURCE_MAX_LEN = config["data"]["source_max_len"]
 TARGET_MAX_LEN = config["data"]["target_max_len"]
@@ -61,12 +61,11 @@ for epoch in range(EPOCHS):
     for batch in train_loader:
         source_seq = batch['source_seq']
         target_seq = batch['target_seq']
-        source_mask = batch['source_mask']
         target_mask = batch['target_mask']
 
-        # Forward pass
+        # Forward pass, no src_mask as per requirement, only tgt_mask
         optimizer.zero_grad()
-        output = model(source_seq, target_seq[:, :-1], source_mask, target_mask[:, :-1])
+        output = model(source_seq, target_seq[:, :-1], tgt_mask=target_mask[:, :-1])
         loss = criterion(output.reshape(-1, output.size(-1)), target_seq[:, 1:].reshape(-1))
         
         # Backward pass and optimization

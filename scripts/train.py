@@ -54,6 +54,11 @@ model = Transformer(
 criterion = nn.CrossEntropyLoss(ignore_index=source_vocab.vocab["<pad>"])
 optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
+# Helper function to create a square mask for the target sequence
+def create_tgt_mask(tgt_seq_len):
+    mask = torch.tril(torch.ones(tgt_seq_len, tgt_seq_len)).bool()
+    return mask  # Shape: (tgt_seq_len, tgt_seq_len)
+
 # Training loop
 for epoch in range(EPOCHS):
     model.train()
@@ -61,11 +66,14 @@ for epoch in range(EPOCHS):
     for batch in train_loader:
         source_seq = batch['source_seq']
         target_seq = batch['target_seq']
-        target_mask = batch['target_mask']
+        
+        # Create a square target mask of shape (target_seq_len, target_seq_len)
+        tgt_seq_len = target_seq.size(1)
+        tgt_mask = create_tgt_mask(tgt_seq_len).to(target_seq.device)
 
-        # Forward pass, no src_mask as per requirement, only tgt_mask
+        # Forward pass
         optimizer.zero_grad()
-        output = model(source_seq, target_seq[:, :-1], tgt_mask=target_mask[:, :-1])
+        output = model(source_seq, target_seq[:, :-1], tgt_mask=tgt_mask)
         loss = criterion(output.reshape(-1, output.size(-1)), target_seq[:, 1:].reshape(-1))
         
         # Backward pass and optimization

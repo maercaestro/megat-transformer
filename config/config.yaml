@@ -1,20 +1,18 @@
-# Data settings
+
 data:
   dataset_path: "dataset/combined_dataset.csv"
   source_max_len: 37
   target_max_len: 43
   pad_token: "<pad>"
 
-# Model settings
 model:
   num_layers: 6
   d_model: 512
   num_heads: 8
   d_ff: 2048
-  vocab_size: 96038  # This should match the vocab size we created
+  vocab_size: 96038  
   dropout_rate: 0.1
 
-# Training settings
 training:
   batch_size: 32
   learning_rate: 0.0001

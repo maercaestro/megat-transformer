@@ -2,7 +2,7 @@
 import yaml
 import os
 
-def load_config(config_file="config.yaml"):
+def load_config(config_file="config/config.yaml"):
     """
     Load configuration settings from a YAML file.
     

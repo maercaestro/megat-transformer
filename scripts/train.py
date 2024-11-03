@@ -6,7 +6,7 @@ from dataset.custom_dataset import CustomDataset, BuildVocabulary
 from src.transformer import Transformer
 import pandas as pd
 import wandb
-from config import load_config
+from config.config import load_config
 
 # Load configuration
 config = load_config()

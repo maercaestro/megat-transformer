@@ -1,69 +1,77 @@
-# evaluate.py - Evaluation script for Transformer model
-
 import torch
 from torch.utils.data import DataLoader
+import torch.nn as nn
+from dataset.custom_dataset import CustomDataset, BuildVocabulary
 from src.transformer import Transformer
-from dataset.custom_dataset import CustomDataset
-from config.config import load_config
+import pandas as pd
+import wandb
+from config import load_config
 
-def evaluate(model, dataloader, criterion, device):
-    model.eval()
-    total_loss = 0
-    with torch.no_grad():
-        for batch in dataloader:
-            inputs, targets = batch['input'].to(device), batch['target'].to(device)
-            
-            outputs = model(inputs, targets)
-            loss = criterion(outputs.view(-1, outputs.size(-1)), targets.view(-1))
-            total_loss += loss.item()
+# Load configuration
+config = load_config("config.yaml")
 
-    return total_loss / len(dataloader)
+# Initialize wandb for evaluation
+wandb.init(project="transformer_evaluation", config=config)
 
-def main():
-    # Load configuration
-    config = load_config()
-    
-    # Set device
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
-    # Initialize model based on config parameters
-    model = Transformer(
-        num_layers=config['model']['num_layers'],
-        d_model=config['model']['d_model'],
-        h=config['model']['num_heads'],
-        d_ff=config['model']['d_ff'],
-        src_vocab_size=config['model']['src_vocab_size'],
-        tgt_vocab_size=config['model']['tgt_vocab_size'],
-        max_len=config['model']['max_len'],
-        dropout=config['model']['dropout']
-    ).to(device)
-    
-    # Load the trained model weights
-    model.load_state_dict(torch.load(config['evaluation']['model_load_path']))
-    model.eval()
-    
-    # Define the loss function
-    criterion = torch.nn.CrossEntropyLoss()
-    
-    # Load the evaluation dataset
-    # Sample vocabulary - Replace with actual vocabulary for your dataset
-    vocab = {
-        "hi": 1,
-        "dunia": 2,
-        "<pad>": 0,
-        "<unk>": 3
-        # Add other words or characters as needed
-    }
-    eval_dataset = CustomDataset(
-        data_path=config['data']['eval_data_path'],
-        vocab=vocab,
-        max_len=config['model']['max_len']
-    )
-    eval_dataloader = DataLoader(eval_dataset, batch_size=config['evaluation']['batch_size'])
-    
-    # Run evaluation
-    eval_loss = evaluate(model, eval_dataloader, criterion, device)
-    print(f"Evaluation Loss: {eval_loss:.4f}")
+# Hyperparameters from config
+BATCH_SIZE = config["training"]["batch_size"]
+NUM_LAYERS = config["model"]["num_layers"]
+D_MODEL = config["model"]["d_model"]
+N_HEADS = config["model"]["num_heads"]
+D_FF = config["model"]["d_ff"]
+SOURCE_MAX_LEN = config["data"]["source_max_len"]
+TARGET_MAX_LEN = config["data"]["target_max_len"]
 
-if __name__ == "__main__":
-    main()
+# Load data and create vocabulary
+dataset_path = config["data"]["dataset_path"]
+df = pd.read_csv(dataset_path)
+
+# Build vocabularies for source and target
+source_vocab = BuildVocabulary(df['source_text'].tolist())
+target_vocab = BuildVocabulary(df['translated_text'].tolist())
+
+# Initialize dataset and dataloader for evaluation
+eval_dataset = CustomDataset(df, source_vocab, target_vocab, SOURCE_MAX_LEN, TARGET_MAX_LEN)
+eval_loader = DataLoader(eval_dataset, batch_size=BATCH_SIZE, shuffle=False)
+
+# Initialize the Transformer model
+model = Transformer(
+    num_layers=NUM_LAYERS,
+    d_model=D_MODEL,
+    vocab_size=len(source_vocab.vocab),
+    num_heads=N_HEADS,
+    d_ff=D_FF
+)
+
+# Load the latest checkpoint
+checkpoint_path = f"{config['training']['checkpoint_dir']}transformer_epoch_{config['training']['epochs']}.pth"
+model.load_state_dict(torch.load(checkpoint_path))
+model.eval()
+
+# Define loss function for evaluation
+criterion = nn.CrossEntropyLoss(ignore_index=source_vocab.vocab["<pad>"])
+
+# Evaluation loop
+total_loss = 0
+with torch.no_grad():
+    for batch in eval_loader:
+        source_seq = batch['source_seq']
+        target_seq = batch['target_seq']
+        source_mask = batch['source_mask']
+        target_mask = batch['target_mask']
+
+        # Forward pass
+        output = model(source_seq, target_seq[:, :-1], source_mask, target_mask[:, :-1])
+        loss = criterion(output.reshape(-1, output.size(-1)), target_seq[:, 1:].reshape(-1))
+        
+        total_loss += loss.item()
+
+# Calculate and log average loss
+avg_loss = total_loss / len(eval_loader)
+print(f"Evaluation Loss: {avg_loss:.4f}")
+
+# Log evaluation loss to wandb
+wandb.log({"evaluation_loss": avg_loss})
+
+# Finish wandb logging
+wandb.finish()

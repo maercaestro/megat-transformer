@@ -1,82 +1,53 @@
-# custom_dataset.py - Custom Dataset class with VocabularyBuilder
-
-import pandas as pd
 import torch
 from torch.utils.data import Dataset
 from collections import Counter
-import csv
+import pandas as pd
+import numpy as np
 
-class VocabularyBuilder:
-    def __init__(self, data_path):
-        self.data_path = data_path
-        self.vocab = {}
-        self.max_len = 0
+class BuildVocabulary:
+    def __init__(self, texts, reserved_tokens=["<pad>"]):
+        self.vocab = self.build_vocab(texts, reserved_tokens)
+        
+    def build_vocab(self, texts, reserved_tokens):
+        all_words = Counter(" ".join(texts).split())
+        vocab = {word: idx for idx, (word, _) in enumerate(all_words.items(), start=len(reserved_tokens))}
+        for idx, token in enumerate(reserved_tokens):
+            vocab[token] = idx  # Add reserved tokens at the start
+        return vocab
 
-    def build(self):
-        try:
-            # Use on_bad_lines='skip' to ignore problematic rows
-            data = pd.read_csv(self.data_path, on_bad_lines='skip')
-        except pd.errors.ParserError:
-            print("Parser error encountered in the CSV file.")
-            return self.vocab, self.max_len
-
-        # Process the data as before...
-        for _, row in data.iterrows():
-            for text in [row["source_text"], row["translated_text"]]:
-                tokens = text.split()
-                self.max_len = max(self.max_len, len(tokens))
-                for token in tokens:
-                    if token not in self.vocab:
-                        self.vocab[token] = len(self.vocab)
-        return self.vocab, self.max_len
-
+    def text_to_sequence(self, text):
+        return [self.vocab.get(word, self.vocab.get("<unk>")) for word in text.split()]
 
 class CustomDataset(Dataset):
-    def __init__(self, data_path, vocab=None, max_len=128):
-        """
-        Custom dataset for loading CSV data and handling vocabulary building.
-
-        Args:
-            data_path (str): Path to the CSV file.
-            vocab (dict or None): Pre-built vocabulary mapping words/characters to IDs.
-            max_len (int): Maximum sequence length for padding/truncation.
-        """
-        self.data = pd.read_csv(data_path)
-        self.max_len = max_len
-
-        # If no vocab is provided, build it from the dataset
-        if vocab is None:
-            vocab_builder = VocabularyBuilder(min_freq=1)
-            all_texts = pd.concat([self.data["source_text"], self.data["translated_text"]]).tolist()
-            self.vocab = vocab_builder.build(all_texts)
-        else:
-            self.vocab = vocab
-
+    def __init__(self, df, source_vocab, target_vocab, source_max_len=37, target_max_len=43):
+        self.df = df
+        self.source_vocab = source_vocab
+        self.target_vocab = target_vocab
+        self.source_max_len = source_max_len
+        self.target_max_len = target_max_len
+        
     def __len__(self):
-        return len(self.data)
+        return len(self.df)
 
     def __getitem__(self, idx):
-        # Get source and target text
-        src_text = self.data.iloc[idx]["source_text"]
-        tgt_text = self.data.iloc[idx]["translated_text"]
+        source_text = self.df.iloc[idx]['source_text']
+        target_text = self.df.iloc[idx]['translated_text']
 
-        # Convert to vocab IDs and pad/truncate to max_len
-        src_ids = self.text_to_ids(src_text)
-        tgt_ids = self.text_to_ids(tgt_text)
-        
+        # Convert text to sequences
+        source_seq = self.source_vocab.text_to_sequence(source_text)
+        target_seq = self.target_vocab.text_to_sequence(target_text)
+
+        # Apply padding
+        source_seq = source_seq[:self.source_max_len] + [self.source_vocab.vocab["<pad>"]] * max(0, self.source_max_len - len(source_seq))
+        target_seq = target_seq[:self.target_max_len] + [self.target_vocab.vocab["<pad>"]] * max(0, self.target_max_len - len(target_seq))
+
+        # Generate attention masks
+        source_mask = [1 if token != self.source_vocab.vocab["<pad>"] else 0 for token in source_seq]
+        target_mask = [1 if token != self.target_vocab.vocab["<pad>"] else 0 for token in target_seq]
+
         return {
-            'input': torch.tensor(src_ids, dtype=torch.long),
-            'target': torch.tensor(tgt_ids, dtype=torch.long)
+            "source_seq": torch.tensor(source_seq, dtype=torch.long),
+            "target_seq": torch.tensor(target_seq, dtype=torch.long),
+            "source_mask": torch.tensor(source_mask, dtype=torch.long),
+            "target_mask": torch.tensor(target_mask, dtype=torch.long),
         }
-
-    def text_to_ids(self, text):
-        """
-        Convert text to a list of vocab IDs and pad/truncate to max_len.
-        """
-        ids = [self.vocab.get(token, self.vocab["<unk>"]) for token in text.split()]
-        # Pad or truncate to max_len
-        if len(ids) < self.max_len:
-            ids += [self.vocab["<pad>"]] * (self.max_len - len(ids))
-        else:
-            ids = ids[:self.max_len]
-        return ids

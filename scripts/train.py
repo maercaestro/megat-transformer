@@ -7,9 +7,16 @@ from src.transformer import Transformer
 import pandas as pd
 import wandb
 from config.config import load_config
+import os
+
+
 
 # Load configuration
 config = load_config()
+
+# Ensure checkpoint directory exists
+checkpoint_dir = config["training"]["checkpoint_dir"]
+os.makedirs(checkpoint_dir, exist_ok=True)
 
 # Initialize wandb
 wandb.init(project="transformer_training", config=config)

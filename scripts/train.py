@@ -57,7 +57,7 @@ optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 # Helper function to create a square mask for the target sequence
 def create_tgt_mask(tgt_seq_len):
     mask = torch.tril(torch.ones(tgt_seq_len, tgt_seq_len)).bool()
-    return mask  # Shape: (tgt_seq_len, tgt_seq_len)
+    return mask[:tgt_seq_len-1, :tgt_seq_len-1]  # Align with tgt sequence excluding last token
 
 # Training loop
 for epoch in range(EPOCHS):
@@ -67,7 +67,7 @@ for epoch in range(EPOCHS):
         source_seq = batch['source_seq']
         target_seq = batch['target_seq']
         
-        # Create a square target mask of shape (target_seq_len, target_seq_len)
+        # Create a square target mask of shape matching target_seq[:, :-1]
         tgt_seq_len = target_seq.size(1)
         tgt_mask = create_tgt_mask(tgt_seq_len).to(target_seq.device)
 

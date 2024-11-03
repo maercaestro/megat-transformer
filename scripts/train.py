@@ -9,7 +9,7 @@ import wandb
 from config.config import load_config
 
 # Load configuration
-config = load_config("config.yaml")
+config = load_config()
 
 # Initialize wandb
 wandb.init(project="transformer_training", config=config)

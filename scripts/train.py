@@ -2,11 +2,11 @@ import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader
 import torch.nn as nn
-from dataset.custom_dataset import CustomDataset,BuildVocabulary
+from dataset.custom_dataset import CustomDataset, BuildVocabulary
 from src.transformer import Transformer
 import pandas as pd
 import wandb
-from config.config import load_config
+from config import load_config
 
 # Load configuration
 config = load_config()
@@ -24,6 +24,7 @@ N_HEADS = config["model"]["num_heads"]
 D_FF = config["model"]["d_ff"]
 SOURCE_MAX_LEN = config["data"]["source_max_len"]
 TARGET_MAX_LEN = config["data"]["target_max_len"]
+MAX_LEN = max(SOURCE_MAX_LEN, TARGET_MAX_LEN)
 
 # Load data and create vocabulary
 dataset_path = config["data"]["dataset_path"]
@@ -41,9 +42,12 @@ train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 model = Transformer(
     num_layers=NUM_LAYERS,
     d_model=D_MODEL,
-    vocab_size=len(source_vocab.vocab),
-    num_heads=N_HEADS,
-    d_ff=D_FF
+    h=N_HEADS,
+    d_ff=D_FF,
+    src_vocab_size=len(source_vocab.vocab),
+    tgt_vocab_size=len(target_vocab.vocab),
+    max_len=MAX_LEN,
+    dropout=config["model"].get("dropout_rate", 0.1)
 )
 
 # Define loss function and optimizer

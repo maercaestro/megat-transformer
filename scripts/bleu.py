@@ -38,10 +38,10 @@ model = Transformer(
     dropout=config["model"].get("dropout_rate", 0.1)
 )
 
-# Load latest checkpoint
-checkpoint_path = "/content/transformer_epoch_10.pth"  # or whatever your checkpoint filename is
-checkpoint = torch.load(checkpoint_path)
-model.load_state_dict(checkpoint["model_state_dict"])
+# Load latest checkpoint directly into the model's state_dict
+checkpoint_path = "path/to/your_checkpoint.pth"
+checkpoint = torch.load(checkpoint_path)  # Directly load the checkpoint
+model.load_state_dict(checkpoint)
 model.eval()
 
 # Helper function to generate translations

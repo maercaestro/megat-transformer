@@ -39,7 +39,7 @@ model = Transformer(
 )
 
 # Load latest checkpoint directly into the model's state_dict
-checkpoint_path = "path/to/your_checkpoint.pth"
+checkpoint_path = "/content/transformer_epoch_10.pth"
 checkpoint = torch.load(checkpoint_path)  # Directly load the checkpoint
 model.load_state_dict(checkpoint)
 model.eval()

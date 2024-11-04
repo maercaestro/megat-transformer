@@ -7,6 +7,10 @@ from config.config import load_config
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 import wandb
 
+# Check for GPU
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Using device: {device}")
+
 # Load configuration
 config = load_config()
 
@@ -17,16 +21,12 @@ df = pd.read_csv(dataset_path)
 # Split dataset into train and test sets
 train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
 
-# Save train and test sets
-train_df.to_csv("train_dataset.csv", index=False)
-test_df.to_csv("test_dataset.csv", index=False)
-
 # Initialize vocabulary and test dataset
 source_vocab = BuildVocabulary(df['source_text'].tolist())
 target_vocab = BuildVocabulary(df['translated_text'].tolist())
 test_dataset = CustomDataset(test_df, source_vocab, target_vocab, config["data"]["source_max_len"], config["data"]["target_max_len"])
 
-# Initialize model
+# Initialize model and move to GPU if available
 model = Transformer(
     num_layers=config["model"]["num_layers"],
     d_model=config["model"]["d_model"],
@@ -36,20 +36,21 @@ model = Transformer(
     tgt_vocab_size=len(target_vocab.vocab),
     max_len=max(config["data"]["source_max_len"], config["data"]["target_max_len"]),
     dropout=config["model"].get("dropout_rate", 0.1)
-)
+).to(device)  # Move model to GPU if available
 
 # Load latest checkpoint directly into the model's state_dict
-checkpoint_path = "/content/transformer_epoch_10.pth"
-checkpoint = torch.load(checkpoint_path)  # Directly load the checkpoint
+checkpoint_path = "path/to/your_checkpoint.pth"
+checkpoint = torch.load(checkpoint_path, map_location=device)  # Load to appropriate device
 model.load_state_dict(checkpoint)
 model.eval()
 
+# Helper function to generate translations
 def generate_translation(model, src_seq, src_vocab, tgt_vocab, max_len=50):
-    src_tensor = torch.tensor([src_vocab.text_to_sequence(src_seq)]).long()
-    tgt_seq = [0]  # Start with a dummy token (e.g., zero) to initialize the sequence
+    src_tensor = torch.tensor([src_vocab.text_to_sequence(src_seq)]).long().to(device)  # Move to GPU if available
+    tgt_seq = [0]  # Start with a dummy token to initialize
 
     for _ in range(max_len):
-        tgt_tensor = torch.tensor([tgt_seq]).long()  # Ensure tgt_tensor is not empty
+        tgt_tensor = torch.tensor([tgt_seq]).long().to(device)  # Ensure tgt_tensor is on the same device
         with torch.no_grad():
             output = model(src_tensor, tgt_tensor)
             next_token = output.argmax(-1)[:, -1].item()  # Greedy decoding
@@ -59,8 +60,7 @@ def generate_translation(model, src_seq, src_vocab, tgt_vocab, max_len=50):
     rev_vocab = {idx: token for token, idx in tgt_vocab.vocab.items()}
     return " ".join([rev_vocab[idx] for idx in tgt_seq if idx in rev_vocab])
 
-
-
+# BLEU evaluation function
 def evaluate_bleu(model, dataset, src_vocab, tgt_vocab):
     total_bleu = 0
     rev_src_vocab = {idx: token for token, idx in src_vocab.vocab.items()}
@@ -84,7 +84,6 @@ def evaluate_bleu(model, dataset, src_vocab, tgt_vocab):
 
     avg_bleu = total_bleu / len(dataset)
     print(f"Average BLEU Score: {avg_bleu:.4f}")
-
 
 # Run BLEU evaluation
 evaluate_bleu(model, test_dataset, source_vocab, target_vocab)

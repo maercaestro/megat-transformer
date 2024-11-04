@@ -39,7 +39,7 @@ model = Transformer(
 )
 
 # Load latest checkpoint directly into the model's state_dict
-checkpoint_path = "/content/transformer_epoch_10.pth"
+checkpoint_path = "path/to/your_checkpoint.pth"
 checkpoint = torch.load(checkpoint_path)  # Directly load the checkpoint
 model.load_state_dict(checkpoint)
 model.eval()
@@ -58,19 +58,23 @@ def generate_translation(model, src_seq, src_vocab, tgt_vocab, max_len=50):
             if next_token == tgt_vocab.vocab["<eos>"]:  # End token
                 break
 
-    return " ".join([tgt_vocab.idx_to_token[idx] for idx in tgt_seq[1:-1]])  # Remove <sos> and <eos>
+    # Convert generated indices back to tokens using reverse mapping
+    rev_vocab = {idx: token for token, idx in tgt_vocab.vocab.items()}
+    return " ".join([rev_vocab[idx] for idx in tgt_seq[1:-1]])  # Remove <sos> and <eos>
 
 # BLEU evaluation function
 def evaluate_bleu(model, dataset, src_vocab, tgt_vocab):
     total_bleu = 0
+    rev_src_vocab = {idx: token for token, idx in src_vocab.vocab.items()}
+    rev_tgt_vocab = {idx: token for token, idx in tgt_vocab.vocab.items()}
+    
     for i in range(len(dataset)):
-        # Assuming dataset returns tensors directly
-        source_seq = dataset[i]["source_seq"]  # Use the correct key based on your dataset class
+        source_seq = dataset[i]["source_seq"]
         target_seq = dataset[i]["target_seq"]
         
-        # Convert source_seq back to text if needed
-        src_seq_text = " ".join([src_vocab.idx_to_token[idx.item()] for idx in source_seq if idx.item() != src_vocab.vocab["<pad>"]])
-        ref_text = " ".join([tgt_vocab.idx_to_token[idx.item()] for idx in target_seq if idx.item() != tgt_vocab.vocab["<pad>"]])
+        # Convert source and target sequences back to text
+        src_seq_text = " ".join([rev_src_vocab[idx.item()] for idx in source_seq if idx.item() != src_vocab.vocab["<pad>"]])
+        ref_text = " ".join([rev_tgt_vocab[idx.item()] for idx in target_seq if idx.item() != tgt_vocab.vocab["<pad>"]])
 
         # Generate translation
         translation = generate_translation(model, src_seq_text, src_vocab, tgt_vocab).split()
@@ -81,7 +85,6 @@ def evaluate_bleu(model, dataset, src_vocab, tgt_vocab):
 
     avg_bleu = total_bleu / len(dataset)
     print(f"Average BLEU Score: {avg_bleu:.4f}")
-
 
 # Run BLEU evaluation
 evaluate_bleu(model, test_dataset, source_vocab, target_vocab)

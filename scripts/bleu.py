@@ -4,7 +4,7 @@ import torch
 from dataset.custom_dataset import CustomDataset, BuildVocabulary
 from src.transformer import Transformer
 from config.config import load_config
-from nltk.translate.bleu_score import sentence_bleu
+from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 import wandb
 
 # Load configuration
@@ -60,11 +60,12 @@ def generate_translation(model, src_seq, src_vocab, tgt_vocab, max_len=50):
     return " ".join([rev_vocab[idx] for idx in tgt_seq if idx in rev_vocab])
 
 
-# BLEU evaluation function without <sos> or <eos> tokens
+
 def evaluate_bleu(model, dataset, src_vocab, tgt_vocab):
     total_bleu = 0
     rev_src_vocab = {idx: token for token, idx in src_vocab.vocab.items()}
     rev_tgt_vocab = {idx: token for token, idx in tgt_vocab.vocab.items()}
+    smooth_fn = SmoothingFunction().method1
     
     for i in range(len(dataset)):
         source_seq = dataset[i]["source_seq"]
@@ -78,11 +79,12 @@ def evaluate_bleu(model, dataset, src_vocab, tgt_vocab):
         translation = generate_translation(model, src_seq_text, src_vocab, tgt_vocab).split()
         reference = ref_text.split()
         
-        # Calculate BLEU for this sample
-        total_bleu += sentence_bleu([reference], translation)
+        # Calculate BLEU for this sample with smoothing
+        total_bleu += sentence_bleu([reference], translation, smoothing_function=smooth_fn)
 
     avg_bleu = total_bleu / len(dataset)
     print(f"Average BLEU Score: {avg_bleu:.4f}")
+
 
 # Run BLEU evaluation
 evaluate_bleu(model, test_dataset, source_vocab, target_vocab)

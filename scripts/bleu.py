@@ -39,30 +39,28 @@ model = Transformer(
 )
 
 # Load latest checkpoint directly into the model's state_dict
-checkpoint_path = "/content/transformer_epoch_10.pth"
+checkpoint_path = "path/to/your_checkpoint.pth"
 checkpoint = torch.load(checkpoint_path)  # Directly load the checkpoint
 model.load_state_dict(checkpoint)
 model.eval()
 
-# Helper function to generate translations
+# Helper function to generate translations without <sos> or <eos> tokens
 def generate_translation(model, src_seq, src_vocab, tgt_vocab, max_len=50):
     src_tensor = torch.tensor([src_vocab.text_to_sequence(src_seq)]).long()
-    tgt_seq = [tgt_vocab.vocab["<sos>"]]  # Start token
-    
+    tgt_seq = []  # Start with an empty sequence for decoding
+
     for _ in range(max_len):
-        tgt_tensor = torch.tensor([tgt_seq]).long()
+        tgt_tensor = torch.tensor([tgt_seq]).long() if tgt_seq else torch.tensor([[]]).long()
         with torch.no_grad():
             output = model(src_tensor, tgt_tensor)
             next_token = output.argmax(-1)[:, -1].item()  # Greedy decoding
             tgt_seq.append(next_token)
-            if next_token == tgt_vocab.vocab["<eos>"]:  # End token
-                break
 
-    # Convert generated indices back to tokens using reverse mapping
+    # Convert generated indices back to tokens
     rev_vocab = {idx: token for token, idx in tgt_vocab.vocab.items()}
-    return " ".join([rev_vocab[idx] for idx in tgt_seq[1:-1]])  # Remove <sos> and <eos>
+    return " ".join([rev_vocab[idx] for idx in tgt_seq])
 
-# BLEU evaluation function
+# BLEU evaluation function without <sos> or <eos> tokens
 def evaluate_bleu(model, dataset, src_vocab, tgt_vocab):
     total_bleu = 0
     rev_src_vocab = {idx: token for token, idx in src_vocab.vocab.items()}

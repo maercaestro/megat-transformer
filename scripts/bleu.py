@@ -44,13 +44,12 @@ checkpoint = torch.load(checkpoint_path)  # Directly load the checkpoint
 model.load_state_dict(checkpoint)
 model.eval()
 
-# Helper function to generate translations without <sos> or <eos> tokens
 def generate_translation(model, src_seq, src_vocab, tgt_vocab, max_len=50):
     src_tensor = torch.tensor([src_vocab.text_to_sequence(src_seq)]).long()
-    tgt_seq = []  # Start with an empty sequence for decoding
+    tgt_seq = [0]  # Start with a dummy token (e.g., zero) to initialize the sequence
 
     for _ in range(max_len):
-        tgt_tensor = torch.tensor([tgt_seq]).long() if tgt_seq else torch.tensor([[]]).long()
+        tgt_tensor = torch.tensor([tgt_seq]).long()  # Ensure tgt_tensor is not empty
         with torch.no_grad():
             output = model(src_tensor, tgt_tensor)
             next_token = output.argmax(-1)[:, -1].item()  # Greedy decoding
@@ -58,7 +57,8 @@ def generate_translation(model, src_seq, src_vocab, tgt_vocab, max_len=50):
 
     # Convert generated indices back to tokens
     rev_vocab = {idx: token for token, idx in tgt_vocab.vocab.items()}
-    return " ".join([rev_vocab[idx] for idx in tgt_seq])
+    return " ".join([rev_vocab[idx] for idx in tgt_seq if idx in rev_vocab])
+
 
 # BLEU evaluation function without <sos> or <eos> tokens
 def evaluate_bleu(model, dataset, src_vocab, tgt_vocab):

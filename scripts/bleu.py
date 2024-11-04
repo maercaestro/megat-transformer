@@ -64,13 +64,24 @@ def generate_translation(model, src_seq, src_vocab, tgt_vocab, max_len=50):
 def evaluate_bleu(model, dataset, src_vocab, tgt_vocab):
     total_bleu = 0
     for i in range(len(dataset)):
-        src_seq = dataset[i]["source_text"]
-        reference = dataset[i]["translated_text"].split()
-        translation = generate_translation(model, src_seq, src_vocab, tgt_vocab).split()
+        # Assuming dataset returns tensors directly
+        source_seq = dataset[i]["source_seq"]  # Use the correct key based on your dataset class
+        target_seq = dataset[i]["target_seq"]
+        
+        # Convert source_seq back to text if needed
+        src_seq_text = " ".join([src_vocab.idx_to_token[idx.item()] for idx in source_seq if idx.item() != src_vocab.vocab["<pad>"]])
+        ref_text = " ".join([tgt_vocab.idx_to_token[idx.item()] for idx in target_seq if idx.item() != tgt_vocab.vocab["<pad>"]])
+
+        # Generate translation
+        translation = generate_translation(model, src_seq_text, src_vocab, tgt_vocab).split()
+        reference = ref_text.split()
+        
+        # Calculate BLEU for this sample
         total_bleu += sentence_bleu([reference], translation)
 
     avg_bleu = total_bleu / len(dataset)
     print(f"Average BLEU Score: {avg_bleu:.4f}")
+
 
 # Run BLEU evaluation
 evaluate_bleu(model, test_dataset, source_vocab, target_vocab)

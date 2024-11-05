@@ -59,11 +59,11 @@ model = Transformer(
 criterion = nn.CrossEntropyLoss(ignore_index=source_vocab.vocab["<pad>"])
 optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
-# Check for existing checkpoint
+# Check for manually uploaded checkpoint
+checkpoint_path = "/content/transformer_epoch_10.pth"
 start_epoch = 0
-latest_checkpoint = os.path.join(checkpoint_dir, "/content/transformer_epoch_10.pth")
-if os.path.isfile(latest_checkpoint):
-    checkpoint = torch.load(wandb.restore(latest_checkpoint).name)
+if os.path.isfile(checkpoint_path):
+    checkpoint = torch.load(checkpoint_path)
     model.load_state_dict(checkpoint["model_state_dict"])
     optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
     start_epoch = checkpoint["epoch"] + 1
@@ -109,6 +109,7 @@ for epoch in range(start_epoch, EPOCHS):
         "model_state_dict": model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
     }
+    latest_checkpoint = os.path.join(checkpoint_dir, "latest_checkpoint.pth")
     torch.save(checkpoint, latest_checkpoint)
     wandb.save(latest_checkpoint)
 

@@ -12,10 +12,6 @@ import os
 # Load configuration
 config = load_config()
 
-# Ensure checkpoint directory exists
-checkpoint_dir = config["training"]["checkpoint_dir"]
-os.makedirs(checkpoint_dir, exist_ok=True)
-
 # Initialize wandb
 wandb.init(project="transformer_training", config=config, resume="allow")
 
@@ -75,49 +71,66 @@ if os.path.isfile(checkpoint_path):
         model.load_state_dict(checkpoint)
         print("Loaded model weights only. Starting from epoch 0 without optimizer state.")
 
+# Set checkpoint path to root directory
+latest_checkpoint = "/content/latest_checkpoint.pth"
+
 # Helper function to create a square mask for the target sequence
 def create_tgt_mask(tgt_seq_len):
     mask = torch.tril(torch.ones(tgt_seq_len, tgt_seq_len)).bool()
     return mask[:tgt_seq_len-1, :tgt_seq_len-1]  # Align with tgt sequence excluding last token
 
-# Training loop
-for epoch in range(start_epoch, EPOCHS):
-    model.train()
-    total_loss = 0
-    for batch in train_loader:
-        source_seq = batch['source_seq']
-        target_seq = batch['target_seq']
-        
-        # Create a square target mask of shape matching target_seq[:, :-1]
-        tgt_seq_len = target_seq.size(1)
-        tgt_mask = create_tgt_mask(tgt_seq_len).to(target_seq.device)
+# Training loop with checkpoint saving in root directory
+try:
+    for epoch in range(start_epoch, EPOCHS):
+        model.train()
+        total_loss = 0
+        for batch in train_loader:
+            source_seq = batch['source_seq']
+            target_seq = batch['target_seq']
 
-        # Forward pass
-        optimizer.zero_grad()
-        output = model(source_seq, target_seq[:, :-1], tgt_mask=tgt_mask)
-        loss = criterion(output.reshape(-1, output.size(-1)), target_seq[:, 1:].reshape(-1))
-        
-        # Backward pass and optimization
-        loss.backward()
-        optimizer.step()
-        
-        total_loss += loss.item()
+            # Create a square target mask of shape matching target_seq[:, :-1]
+            tgt_seq_len = target_seq.size(1)
+            tgt_mask = create_tgt_mask(tgt_seq_len).to(target_seq.device)
 
-    avg_loss = total_loss / len(train_loader)
-    print(f"Epoch [{epoch+1}/{EPOCHS}], Loss: {avg_loss:.4f}")
+            # Forward pass
+            optimizer.zero_grad()
+            output = model(source_seq, target_seq[:, :-1], tgt_mask=tgt_mask)
+            loss = criterion(output.reshape(-1, output.size(-1)), target_seq[:, 1:].reshape(-1))
 
-    # Log the loss to wandb
-    wandb.log({"epoch": epoch + 1, "loss": avg_loss})
+            # Backward pass and optimization
+            loss.backward()
+            optimizer.step()
 
-    # Save model checkpoint
+            total_loss += loss.item()
+
+        avg_loss = total_loss / len(train_loader)
+        print(f"Epoch [{epoch+1}/{EPOCHS}], Loss: {avg_loss:.4f}")
+
+        # Log the loss to wandb
+        wandb.log({"epoch": epoch + 1, "loss": avg_loss})
+
+        # Save model checkpoint after each epoch in the root directory
+        checkpoint = {
+            "epoch": epoch,
+            "model_state_dict": model.state_dict(),
+            "optimizer_state_dict": optimizer.state_dict(),
+        }
+        torch.save(checkpoint, latest_checkpoint)
+        print(f"Checkpoint saved at {latest_checkpoint}")
+        wandb.save(latest_checkpoint)
+
+except KeyboardInterrupt:
+    print("Training interrupted. Saving checkpoint...")
+    # Save checkpoint in root directory upon interruption
     checkpoint = {
         "epoch": epoch,
         "model_state_dict": model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
     }
-    latest_checkpoint = os.path.join(checkpoint_dir, "latest_checkpoint.pth")
     torch.save(checkpoint, latest_checkpoint)
     wandb.save(latest_checkpoint)
+    print("Checkpoint saved and uploaded to wandb.")
+    wandb.finish()  # Ensure wandb closes properly
 
-# Finish wandb logging
+# Finish wandb logging in case it completes normally
 wandb.finish()

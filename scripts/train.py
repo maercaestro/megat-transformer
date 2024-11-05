@@ -9,8 +9,6 @@ import wandb
 from config.config import load_config
 import os
 
-
-
 # Load configuration
 config = load_config()
 
@@ -19,7 +17,7 @@ checkpoint_dir = config["training"]["checkpoint_dir"]
 os.makedirs(checkpoint_dir, exist_ok=True)
 
 # Initialize wandb
-wandb.init(project="transformer_training", config=config)
+wandb.init(project="transformer_training", config=config, resume="allow")
 
 # Hyperparameters from config
 BATCH_SIZE = config["training"]["batch_size"]
@@ -61,13 +59,23 @@ model = Transformer(
 criterion = nn.CrossEntropyLoss(ignore_index=source_vocab.vocab["<pad>"])
 optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
+# Check for existing checkpoint
+start_epoch = 0
+latest_checkpoint = os.path.join(checkpoint_dir, "/content/transformer_epoch_10.pth")
+if os.path.isfile(latest_checkpoint):
+    checkpoint = torch.load(wandb.restore(latest_checkpoint).name)
+    model.load_state_dict(checkpoint["model_state_dict"])
+    optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+    start_epoch = checkpoint["epoch"] + 1
+    print(f"Resuming training from epoch {start_epoch}")
+
 # Helper function to create a square mask for the target sequence
 def create_tgt_mask(tgt_seq_len):
     mask = torch.tril(torch.ones(tgt_seq_len, tgt_seq_len)).bool()
     return mask[:tgt_seq_len-1, :tgt_seq_len-1]  # Align with tgt sequence excluding last token
 
 # Training loop
-for epoch in range(EPOCHS):
+for epoch in range(start_epoch, EPOCHS):
     model.train()
     total_loss = 0
     for batch in train_loader:
@@ -96,9 +104,13 @@ for epoch in range(EPOCHS):
     wandb.log({"epoch": epoch + 1, "loss": avg_loss})
 
     # Save model checkpoint
-    checkpoint_path = f"{config['training']['checkpoint_dir']}transformer_epoch_{epoch+1}.pth"
-    torch.save(model.state_dict(), checkpoint_path)
-    wandb.save(checkpoint_path)
+    checkpoint = {
+        "epoch": epoch,
+        "model_state_dict": model.state_dict(),
+        "optimizer_state_dict": optimizer.state_dict(),
+    }
+    torch.save(checkpoint, latest_checkpoint)
+    wandb.save(latest_checkpoint)
 
 # Finish wandb logging
 wandb.finish()

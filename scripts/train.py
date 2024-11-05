@@ -64,10 +64,16 @@ checkpoint_path = "/content/transformer_epoch_10.pth"
 start_epoch = 0
 if os.path.isfile(checkpoint_path):
     checkpoint = torch.load(checkpoint_path)
-    model.load_state_dict(checkpoint["model_state_dict"])
-    optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
-    start_epoch = checkpoint["epoch"] + 1
-    print(f"Resuming training from epoch {start_epoch}")
+    try:
+        # Attempt to load as a full checkpoint with model and optimizer state
+        model.load_state_dict(checkpoint["model_state_dict"])
+        optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+        start_epoch = checkpoint["epoch"] + 1
+        print(f"Resuming training from epoch {start_epoch}")
+    except KeyError:
+        # Load directly if only model weights are available
+        model.load_state_dict(checkpoint)
+        print("Loaded model weights only. Starting from epoch 0 without optimizer state.")
 
 # Helper function to create a square mask for the target sequence
 def create_tgt_mask(tgt_seq_len):

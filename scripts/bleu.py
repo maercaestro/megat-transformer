@@ -39,7 +39,7 @@ model = Transformer(
 ).to(device)  # Move model to GPU if available
 
 # Load latest checkpoint directly into the model's state_dict
-checkpoint_path = "/content/transformer_epoch_10.pth"
+checkpoint_path = "/content/latest_checkpoint.pth"
 checkpoint = torch.load(checkpoint_path, map_location=device)  # Load to appropriate device
 model.load_state_dict(checkpoint)
 model.eval()

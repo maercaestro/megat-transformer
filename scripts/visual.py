@@ -19,7 +19,7 @@ target_vocab = BuildVocabulary(df['translated_text'].tolist())
 
 # Initialize model
 checkpoint_path = "/content/latest_checkpoint.pth"
-checkpoint = torch.load(checkpoint_path)
+checkpoint = torch.load(checkpoint_path, weights_only=True)
 
 model = Transformer(
     num_layers=config["model"]["num_layers"],
@@ -74,11 +74,31 @@ def attn_map(attn, layer, head, row_tokens, col_tokens, max_dim=30):
         .interactive()
     )
 
-def get_encoder(model, layer):
-    return model.encoder.layers[layer].self_attn.attn
+# Updated getter functions to capture attention weights during forward pass
+def get_encoder(model, layer, src_seq):
+    with torch.no_grad():
+        output, attn_weights = model.encoder.layers[layer].self_attn(src_seq, src_seq, src_seq, return_attn=True)
+    return attn_weights
 
-def visualize_layer(model, layer, getter_fn, ntokens, row_tokens, col_tokens):
-    attn = getter_fn(model, layer)
+def get_decoder_self(model, layer, tgt_seq):
+    with torch.no_grad():
+        output, attn_weights = model.decoder.layers[layer].self_attn(tgt_seq, tgt_seq, tgt_seq, return_attn=True)
+    return attn_weights
+
+def get_decoder_src(model, layer, src_seq, tgt_seq):
+    with torch.no_grad():
+        output, attn_weights = model.decoder.layers[layer].src_attn(tgt_seq, src_seq, src_seq, return_attn=True)
+    return attn_weights
+
+# Adjusted visualize_layer function to pass input sequences
+def visualize_layer(model, layer, getter_fn, ntokens, row_tokens, col_tokens, src_seq=None, tgt_seq=None):
+    if 'encoder' in getter_fn.__name__:
+        attn = getter_fn(model, layer, src_seq)
+    elif 'decoder_self' in getter_fn.__name__:
+        attn = getter_fn(model, layer, tgt_seq)
+    elif 'decoder_src' in getter_fn.__name__:
+        attn = getter_fn(model, layer, src_seq, tgt_seq)
+    
     n_heads = attn.shape[1]
     charts = [
         attn_map(
@@ -105,6 +125,10 @@ def visualize_attention_for_selected_rows(selected_rows):
         src_tokens = src_text.split()
         tgt_tokens = tgt_text.split()
 
+        # Convert tokens to tensors
+        src_seq = torch.tensor([source_vocab.text_to_sequence(src_text)]).long()
+        tgt_seq = torch.tensor([target_vocab.text_to_sequence(tgt_text)]).long()
+
         # Visualize encoder attention for Layer 0
         chart = visualize_layer(
             model, 
@@ -112,7 +136,8 @@ def visualize_attention_for_selected_rows(selected_rows):
             getter_fn=get_encoder, 
             ntokens=len(src_tokens), 
             row_tokens=src_tokens, 
-            col_tokens=src_tokens
+            col_tokens=src_tokens,
+            src_seq=src_seq
         )
         chart = chart.properties(title=f"Attention for Row {idx}")
         charts.append(chart)

@@ -39,11 +39,13 @@ attention_weights = {}
 
 def save_attention_weights(module, input, output):
     if isinstance(output, tuple) and len(output) > 1:
-        # If output is a tuple with attention weights, capture them
         attention_weights["value"] = output[1]  # Assuming the second output is attention weights
     else:
-        # If only one output is provided, store it as attention output
-        attention_weights["value"] = output
+        attention_weights["value"] = output  # Directly assign output if not a tuple
+
+    # Log the shape of attention weights for debugging
+    if attention_weights["value"] is not None:
+        print(f"Captured attention weights shape: {attention_weights['value'].shape}")
 
 # Register the hook on the encoder's self-attention layer (layer 0 for this example)
 layer_to_hook = 0  # Adjust as needed to target other layers
@@ -51,7 +53,6 @@ model.encoder.layers[layer_to_hook].self_attn.register_forward_hook(save_attenti
 
 # Visualization functions
 def mtx2df(m, max_row, max_col, row_tokens, col_tokens):
-    # Ensure m has the expected shape
     if m.ndim < 2:
         raise ValueError("Attention weights matrix has an unexpected shape.")
     return pd.DataFrame(
@@ -71,7 +72,6 @@ def mtx2df(m, max_row, max_col, row_tokens, col_tokens):
     )
 
 def attn_map(attn, layer, head, row_tokens, col_tokens, max_dim=30):
-    # Check if attn has the correct shape and dimensions
     if attn is None or attn.ndim < 3:
         raise ValueError("Attention weights are missing or have an unexpected shape.")
     df = mtx2df(

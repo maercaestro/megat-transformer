@@ -19,7 +19,7 @@ target_vocab = BuildVocabulary(df['translated_text'].tolist())
 
 # Initialize model
 checkpoint_path = "/content/latest_checkpoint.pth"
-checkpoint = torch.load(checkpoint_path, weights_only=True)
+checkpoint = torch.load(checkpoint_path)
 
 model = Transformer(
     num_layers=config["model"]["num_layers"],
@@ -34,8 +34,17 @@ model = Transformer(
 model.load_state_dict(checkpoint["model_state_dict"])
 model.eval()
 
-# Visualization functions
+# Hook function to capture attention weights
+attention_weights = {}
 
+def save_attention_weights(module, input, output):
+    attention_weights["value"] = output[1]  # Assuming the attention weights are the second output
+
+# Register hook on encoder self-attention layer (change as needed for other layers)
+layer_to_hook = 0  # The layer you want to visualize
+model.encoder.layers[layer_to_hook].self_attn.register_forward_hook(save_attention_weights)
+
+# Visualization functions
 def mtx2df(m, max_row, max_col, row_tokens, col_tokens):
     return pd.DataFrame(
         [
@@ -74,46 +83,6 @@ def attn_map(attn, layer, head, row_tokens, col_tokens, max_dim=30):
         .interactive()
     )
 
-# Updated getter functions to capture attention weights during forward pass
-def get_encoder(model, layer, src_seq):
-    with torch.no_grad():
-        output, attn_weights = model.encoder.layers[layer].self_attn(src_seq, src_seq, src_seq, return_attn=True)
-    return attn_weights
-
-def get_decoder_self(model, layer, tgt_seq):
-    with torch.no_grad():
-        output, attn_weights = model.decoder.layers[layer].self_attn(tgt_seq, tgt_seq, tgt_seq, return_attn=True)
-    return attn_weights
-
-def get_decoder_src(model, layer, src_seq, tgt_seq):
-    with torch.no_grad():
-        output, attn_weights = model.decoder.layers[layer].src_attn(tgt_seq, src_seq, src_seq, return_attn=True)
-    return attn_weights
-
-# Adjusted visualize_layer function to pass input sequences
-def visualize_layer(model, layer, getter_fn, ntokens, row_tokens, col_tokens, src_seq=None, tgt_seq=None):
-    if 'encoder' in getter_fn.__name__:
-        attn = getter_fn(model, layer, src_seq)
-    elif 'decoder_self' in getter_fn.__name__:
-        attn = getter_fn(model, layer, tgt_seq)
-    elif 'decoder_src' in getter_fn.__name__:
-        attn = getter_fn(model, layer, src_seq, tgt_seq)
-    
-    n_heads = attn.shape[1]
-    charts = [
-        attn_map(
-            attn,
-            0,
-            h,
-            row_tokens=row_tokens,
-            col_tokens=col_tokens,
-            max_dim=ntokens,
-        )
-        for h in range(n_heads)
-    ]
-    assert n_heads == 8
-    return alt.vconcat(*charts).properties(title="Layer %d" % (layer + 1))
-
 # Visualize attention for two specific rows
 def visualize_attention_for_selected_rows(selected_rows):
     charts = []
@@ -129,18 +98,18 @@ def visualize_attention_for_selected_rows(selected_rows):
         src_seq = torch.tensor([source_vocab.text_to_sequence(src_text)]).long()
         tgt_seq = torch.tensor([target_vocab.text_to_sequence(tgt_text)]).long()
 
-        # Visualize encoder attention for Layer 0
-        chart = visualize_layer(
-            model, 
-            layer=0, 
-            getter_fn=get_encoder, 
-            ntokens=len(src_tokens), 
-            row_tokens=src_tokens, 
-            col_tokens=src_tokens,
-            src_seq=src_seq
+        # Forward pass to capture attention weights
+        model(src_seq, tgt_seq)  # This triggers the hook
+
+        # Visualize captured attention weights for the specified layer
+        attn = attention_weights["value"]  # Access the captured weights
+        n_heads = attn.shape[1]
+        charts.append(
+            alt.vconcat(*[
+                attn_map(attn, 0, h, src_tokens, src_tokens, max_dim=len(src_tokens))
+                for h in range(n_heads)
+            ]).properties(title=f"Attention for Row {idx}")
         )
-        chart = chart.properties(title=f"Attention for Row {idx}")
-        charts.append(chart)
         
     return alt.vconcat(*charts)
 

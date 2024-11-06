@@ -51,6 +51,9 @@ model.encoder.layers[layer_to_hook].self_attn.register_forward_hook(save_attenti
 
 # Visualization functions
 def mtx2df(m, max_row, max_col, row_tokens, col_tokens):
+    # Ensure m has the expected shape
+    if m.ndim < 2:
+        raise ValueError("Attention weights matrix has an unexpected shape.")
     return pd.DataFrame(
         [
             (
@@ -68,6 +71,9 @@ def mtx2df(m, max_row, max_col, row_tokens, col_tokens):
     )
 
 def attn_map(attn, layer, head, row_tokens, col_tokens, max_dim=30):
+    # Check if attn has the correct shape and dimensions
+    if attn is None or attn.ndim < 3:
+        raise ValueError("Attention weights are missing or have an unexpected shape.")
     df = mtx2df(
         attn[0, head].data,
         max_dim,
@@ -106,11 +112,14 @@ def visualize_attention_for_selected_rows(selected_rows):
         # Forward pass to capture attention weights
         model(src_seq, tgt_seq)  # This triggers the hook
 
-        # Visualize captured attention weights for the specified layer
-        attn = attention_weights["value"]  # Access the captured weights
-        n_heads = attn.shape[1] if attn.ndim > 2 else 1  # Check if there's a head dimension
+        # Ensure attention weights are available and have the expected shape
+        attn = attention_weights.get("value")
+        if attn is None or attn.ndim < 3:
+            print(f"Warning: Attention weights for Row {idx} are missing or have an unexpected shape.")
+            continue
 
         # Generate attention map for each head
+        n_heads = attn.shape[1]  # Number of attention heads
         charts.append(
             alt.vconcat(*[
                 attn_map(attn, layer=0, head=h, row_tokens=src_tokens, col_tokens=src_tokens, max_dim=len(src_tokens))
@@ -121,5 +130,8 @@ def visualize_attention_for_selected_rows(selected_rows):
     return alt.vconcat(*charts)
 
 # Run visualization for the selected rows
-attention_charts = visualize_attention_for_selected_rows(selected_rows)
-attention_charts.display()  # Display the chart in a notebook environment
+try:
+    attention_charts = visualize_attention_for_selected_rows(selected_rows)
+    attention_charts.display()  # Display the chart in a notebook environment
+except ValueError as e:
+    print(f"Error during visualization: {e}")

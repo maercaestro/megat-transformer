@@ -19,7 +19,7 @@ target_vocab = BuildVocabulary(df['translated_text'].tolist())
 
 # Initialize model
 checkpoint_path = "/content/latest_checkpoint.pth"
-checkpoint = torch.load(checkpoint_path)
+checkpoint = torch.load(checkpoint_path, map_location="cpu")  # Load to CPU or GPU as needed
 
 model = Transformer(
     num_layers=config["model"]["num_layers"],
@@ -34,14 +34,19 @@ model = Transformer(
 model.load_state_dict(checkpoint["model_state_dict"])
 model.eval()
 
-# Hook function to capture attention weights
+# Hook function to capture attention weights (if available)
 attention_weights = {}
 
 def save_attention_weights(module, input, output):
-    attention_weights["value"] = output[1]  # Assuming the attention weights are the second output
+    if isinstance(output, tuple) and len(output) > 1:
+        # If output is a tuple with attention weights, capture them
+        attention_weights["value"] = output[1]  # Assuming the second output is attention weights
+    else:
+        # If only one output is provided, store it as attention output
+        attention_weights["value"] = output
 
-# Register hook on encoder self-attention layer (change as needed for other layers)
-layer_to_hook = 0  # The layer you want to visualize
+# Register the hook on the encoder's self-attention layer (layer 0 for this example)
+layer_to_hook = 0  # Adjust as needed to target other layers
 model.encoder.layers[layer_to_hook].self_attn.register_forward_hook(save_attention_weights)
 
 # Visualization functions
@@ -83,7 +88,7 @@ def attn_map(attn, layer, head, row_tokens, col_tokens, max_dim=30):
         .interactive()
     )
 
-# Visualize attention for two specific rows
+# Visualize attention for selected rows
 def visualize_attention_for_selected_rows(selected_rows):
     charts = []
     for idx, row in selected_rows.iterrows():
@@ -103,10 +108,12 @@ def visualize_attention_for_selected_rows(selected_rows):
 
         # Visualize captured attention weights for the specified layer
         attn = attention_weights["value"]  # Access the captured weights
-        n_heads = attn.shape[1]
+        n_heads = attn.shape[1] if attn.ndim > 2 else 1  # Check if there's a head dimension
+
+        # Generate attention map for each head
         charts.append(
             alt.vconcat(*[
-                attn_map(attn, 0, h, src_tokens, src_tokens, max_dim=len(src_tokens))
+                attn_map(attn, layer=0, head=h, row_tokens=src_tokens, col_tokens=src_tokens, max_dim=len(src_tokens))
                 for h in range(n_heads)
             ]).properties(title=f"Attention for Row {idx}")
         )

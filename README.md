@@ -47,7 +47,7 @@ To set up this project, follow these steps:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/megat-transformer.git
+   git clone https://github.com/maecaestro/megat-transformer.git
    cd megat-transformer
    ```
 

@@ -1,5 +1,8 @@
 # Megat Transformer
 
+![Uploading logomegat.png…]()
+
+
 **Megat Transformer** is an implementation of the Transformer model, inspired by the groundbreaking paper ["Attention Is All You Need"](https://arxiv.org/abs/1706.03762) by Vaswani et al. This project is designed to provide a comprehensive and flexible Transformer architecture for a variety of NLP tasks, with modular components such as multi-head attention, positional encoding, and feed-forward networks.
 
 ## About the Paper

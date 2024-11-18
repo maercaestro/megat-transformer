@@ -1,6 +1,6 @@
 # Data settings
 data:
-  dataset_path: "dataset/combined_dataset.csv"
+  dataset_path: "dataset/combined_dataset_50000.csv"
   source_max_len: 37
   target_max_len: 43
   pad_token: "<pad>"
@@ -8,8 +8,8 @@ data:
 # Model settings
 model:
   num_layers: 6
-  d_model: 512
-  num_heads: 8  # Number of heads
+  d_model: 1024
+  num_heads: 10  # Number of heads
   d_ff: 2048
   src_vocab_size: 96038  # Vocabulary size for source
   tgt_vocab_size: 96038  # Vocabulary size for target

@@ -1,5 +1,8 @@
 # Megat Transformer
 
+![Uploading logomegat.png…](https://github.com/maercaestro/megat-transformer/blob/6a6f0b6cd569010680e9252ae632f20d6421844f/logomegat.png)
+
+
 **Megat Transformer** is an implementation of the Transformer model, inspired by the groundbreaking paper ["Attention Is All You Need"](https://arxiv.org/abs/1706.03762) by Vaswani et al. This project is designed to provide a comprehensive and flexible Transformer architecture for a variety of NLP tasks, with modular components such as multi-head attention, positional encoding, and feed-forward networks.
 
 ## About the Paper
@@ -47,7 +50,7 @@ To set up this project, follow these steps:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/megat-transformer.git
+   git clone https://github.com/maecaestro/megat-transformer.git
    cd megat-transformer
    ```
 

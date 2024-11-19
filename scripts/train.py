@@ -55,11 +55,8 @@ model = Transformer(
 criterion = nn.CrossEntropyLoss(ignore_index=source_vocab.vocab["<pad>"])
 optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
-# Load the latest checkpoint from wandb
-artifact = wandb.use_artifact('transformer_training/latest_checkpoint:latest', type='model')
-artifact_dir = artifact.download()
-checkpoint_path = os.path.join(artifact_dir, 'latest_checkpoint.pth')
-
+# Check for manually uploaded checkpoint
+checkpoint_path = "/content/transformer_epoch_10.pth"
 start_epoch = 0
 if os.path.isfile(checkpoint_path):
     checkpoint = torch.load(checkpoint_path)

@@ -59,8 +59,13 @@ model = Transformer(
 criterion = nn.CrossEntropyLoss(ignore_index=source_vocab.vocab["<pad>"]).to(device)  # Move loss function to device
 optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
+# Set checkpoint paths
+checkpoint_path = "/root/transformer_epoch_10.pth"  # Updated checkpoint path
+latest_checkpoint_dir = "/root/checkpoints"
+os.makedirs(latest_checkpoint_dir, exist_ok=True)  # Create the directory if it doesn't exist
+latest_checkpoint = f"{latest_checkpoint_dir}/latest_checkpoint.pth"
+
 # Check for manually uploaded checkpoint
-checkpoint_path = "/content/transformer_epoch_10.pth"
 start_epoch = 0
 if os.path.isfile(checkpoint_path):
     checkpoint = torch.load(checkpoint_path)
@@ -72,9 +77,6 @@ if os.path.isfile(checkpoint_path):
     except KeyError:
         model.load_state_dict(checkpoint)
         print("Loaded model weights only. Starting from epoch 0 without optimizer state.")
-
-# Set checkpoint path to root directory
-latest_checkpoint = "/content/latest_checkpoint.pth"
 
 # Helper function to create a square mask for the target sequence
 def create_tgt_mask(tgt_seq_len, device):

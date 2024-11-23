@@ -39,7 +39,7 @@ model = Transformer(
 ).to(device)  # Move model to GPU if available
 
 # Load latest checkpoint and extract model weights
-checkpoint_path = "/content/latest_checkpoint.pth"
+checkpoint_path = "/latest_checkpoint.pth"
 checkpoint = torch.load(checkpoint_path, map_location=device)  # Load to appropriate device
 model.load_state_dict(checkpoint["model_state_dict"])  # Load only the model weights
 model.eval()

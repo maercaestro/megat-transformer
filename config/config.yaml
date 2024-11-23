@@ -20,5 +20,5 @@ model:
 training:
   batch_size: 32
   learning_rate: 0.0001
-  epochs: 10
+  epochs: 20
   checkpoint_dir: "checkpoints/"

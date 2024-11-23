@@ -35,15 +35,22 @@ MAX_LEN = max(SOURCE_MAX_LEN, TARGET_MAX_LEN)
 dataset_path = config["data"]["dataset_path"]
 df = pd.read_csv(dataset_path)
 
+# Split dataset into train and validation sets
+train_df = df.sample(frac=0.8, random_state=42)  # 80% training
+val_df = df.drop(train_df.index)  # 20% validation
+
 # Build vocabularies for source and target
 source_vocab = BuildVocabulary(df['source_text'].tolist())
 target_vocab = BuildVocabulary(df['translated_text'].tolist())
 
-# Initialize dataset and dataloader
-train_dataset = CustomDataset(df, source_vocab, target_vocab, SOURCE_MAX_LEN, TARGET_MAX_LEN)
-train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4, pin_memory=True)
+# Initialize datasets and dataloaders
+train_dataset = CustomDataset(train_df, source_vocab, target_vocab, SOURCE_MAX_LEN, TARGET_MAX_LEN)
+val_dataset = CustomDataset(val_df, source_vocab, target_vocab, SOURCE_MAX_LEN, TARGET_MAX_LEN)
 
-# Initialize the Transformer model and move it to the GPU
+train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4, pin_memory=True)
+val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4, pin_memory=True)
+
+# Initialize the Transformer model with dropout
 model = Transformer(
     num_layers=NUM_LAYERS,
     d_model=D_MODEL,
@@ -52,20 +59,21 @@ model = Transformer(
     src_vocab_size=len(source_vocab.vocab),
     tgt_vocab_size=len(target_vocab.vocab),
     max_len=MAX_LEN,
-    dropout=config["model"].get("dropout_rate", 0.1)
-).to(device)  # Move model to GPU/CPU based on availability
+    dropout=0.3  # Increased dropout for regularization
+).to(device)
 
-# Define loss function and optimizer
-criterion = nn.CrossEntropyLoss(ignore_index=source_vocab.vocab["<pad>"]).to(device)  # Move loss function to device
-optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+# Watch the model with WANDB
+wandb.watch(model, log="all")
+
+# Define loss function and optimizer with weight decay
+criterion = nn.CrossEntropyLoss(ignore_index=source_vocab.vocab["<pad>"]).to(device)
+optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=1e-4)  # Added weight decay
 
 # Set checkpoint paths
-checkpoint_path = "/root/transformer_epoch_10.pth"  # Updated checkpoint path
-latest_checkpoint_dir = "/root/checkpoints"
-os.makedirs(latest_checkpoint_dir, exist_ok=True)  # Create the directory if it doesn't exist
-latest_checkpoint = f"{latest_checkpoint_dir}/latest_checkpoint.pth"
+checkpoint_path = "/root/checkpoints/latest_checkpoint.pth"
+os.makedirs("/root/checkpoints", exist_ok=True)
 
-# Check for manually uploaded checkpoint
+# Load checkpoint if exists
 start_epoch = 0
 if os.path.isfile(checkpoint_path):
     checkpoint = torch.load(checkpoint_path)
@@ -78,50 +86,61 @@ if os.path.isfile(checkpoint_path):
         model.load_state_dict(checkpoint)
         print("Loaded model weights only. Starting from epoch 0 without optimizer state.")
 
-# Helper function to create a square mask for the target sequence
-def create_tgt_mask(tgt_seq_len, device):
-    mask = torch.tril(torch.ones(tgt_seq_len, tgt_seq_len, device=device)).bool()
-    return mask[:tgt_seq_len-1, :tgt_seq_len-1]  # Align with tgt sequence excluding last token
+# Helper function to calculate validation loss
+def evaluate_loss(model, val_loader):
+    model.eval()
+    total_loss = 0
+    with torch.no_grad():
+        for batch in val_loader:
+            source_seq = batch['source_seq'].to(device)
+            target_seq = batch['target_seq'].to(device)
 
-# Training loop
+            tgt_seq_len = target_seq.size(1)
+            tgt_mask = torch.tril(torch.ones(tgt_seq_len, tgt_seq_len, device=device)).bool()
+
+            output = model(source_seq, target_seq[:, :-1], tgt_mask=tgt_mask)
+            loss = criterion(output.reshape(-1, output.size(-1)), target_seq[:, 1:].reshape(-1))
+            total_loss += loss.item()
+    return total_loss / len(val_loader)
+
+# Training loop with validation loss evaluation
 try:
     for epoch in range(start_epoch, EPOCHS):
         model.train()
         total_loss = 0
         for batch in train_loader:
-            source_seq = batch['source_seq'].to(device)  # Move source sequence to GPU
-            target_seq = batch['target_seq'].to(device)  # Move target sequence to GPU
+            source_seq = batch['source_seq'].to(device)
+            target_seq = batch['target_seq'].to(device)
 
-            # Create a square target mask of shape matching target_seq[:, :-1]
             tgt_seq_len = target_seq.size(1)
-            tgt_mask = create_tgt_mask(tgt_seq_len, device)
+            tgt_mask = torch.tril(torch.ones(tgt_seq_len, tgt_seq_len, device=device)).bool()
 
-            # Forward pass
             optimizer.zero_grad()
             output = model(source_seq, target_seq[:, :-1], tgt_mask=tgt_mask)
             loss = criterion(output.reshape(-1, output.size(-1)), target_seq[:, 1:].reshape(-1))
 
-            # Backward pass and optimization
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)  # Gradient clipping
             optimizer.step()
 
             total_loss += loss.item()
 
-        avg_loss = total_loss / len(train_loader)
-        print(f"Epoch [{epoch+1}/{EPOCHS}], Loss: {avg_loss:.4f}")
+        avg_train_loss = total_loss / len(train_loader)
+        val_loss = evaluate_loss(model, val_loader)
 
-        # Log the loss to wandb
-        wandb.log({"epoch": epoch + 1, "loss": avg_loss})
+        print(f"Epoch [{epoch + 1}/{EPOCHS}], Train Loss: {avg_train_loss:.4f}, Val Loss: {val_loss:.4f}")
 
-        # Save model checkpoint after each epoch
+        # Log metrics to WANDB
+        wandb.log({"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": val_loss})
+
+        # Save model checkpoint
         checkpoint = {
             "epoch": epoch,
             "model_state_dict": model.state_dict(),
             "optimizer_state_dict": optimizer.state_dict(),
         }
-        torch.save(checkpoint, latest_checkpoint)
-        print(f"Checkpoint saved at {latest_checkpoint}")
-        wandb.save(latest_checkpoint)
+        torch.save(checkpoint, checkpoint_path)
+        print(f"Checkpoint saved at {checkpoint_path}")
 
 except KeyboardInterrupt:
     print("Training interrupted. Saving checkpoint...")
@@ -130,9 +149,13 @@ except KeyboardInterrupt:
         "model_state_dict": model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
     }
-    torch.save(checkpoint, latest_checkpoint)
-    wandb.save(latest_checkpoint)
-    print("Checkpoint saved and uploaded to wandb.")
-    wandb.finish()
+    torch.save(checkpoint, checkpoint_path)
+    print("Checkpoint saved.")
+
+# Log the final model to WANDB as an artifact
+artifact = wandb.Artifact("transformer-model", type="model")
+artifact.add_file(checkpoint_path)
+wandb.log_artifact(artifact)
+print("Model uploaded to WANDB.")
 
 wandb.finish()

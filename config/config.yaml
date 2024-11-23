@@ -14,7 +14,7 @@ model:
   src_vocab_size: 96038  # Vocabulary size for source
   tgt_vocab_size: 96038  # Vocabulary size for target
   max_len: 43  # Maximum sequence length (or greater if needed)
-  dropout_rate: 0.1
+  dropout_rate: 0.3
 
 # Training settings
 training:

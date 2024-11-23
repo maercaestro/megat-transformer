@@ -59,7 +59,7 @@ model = Transformer(
     src_vocab_size=len(source_vocab.vocab),
     tgt_vocab_size=len(target_vocab.vocab),
     max_len=MAX_LEN,
-    dropout=0.3  # Increased dropout for regularization
+    dropout=config["model"].get("dropout_rate", 0.3)
 ).to(device)
 
 # Watch the model with WANDB
@@ -86,8 +86,12 @@ if os.path.isfile(checkpoint_path):
         model.load_state_dict(checkpoint)
         print("Loaded model weights only. Starting from epoch 0 without optimizer state.")
 
-# Helper function to create a square mask for the target sequence
+# Helper function to create a square causal mask
 def create_tgt_mask(tgt_seq_len, device):
+    """
+    Creates a square causal mask for the target sequence to prevent looking ahead.
+    The mask must align with the input shape of the decoder.
+    """
     mask = torch.tril(torch.ones((tgt_seq_len, tgt_seq_len), device=device)).bool()
     return mask.unsqueeze(0).unsqueeze(1)  # Shape: [1, 1, tgt_seq_len, tgt_seq_len]
 
@@ -100,7 +104,7 @@ def evaluate_loss(model, val_loader):
             source_seq = batch['source_seq'].to(device)
             target_seq = batch['target_seq'].to(device)
 
-            tgt_seq_len = target_seq.size(1)
+            tgt_seq_len = target_seq.size(1) - 1  # Adjust for slicing target_seq[:, :-1]
             tgt_mask = create_tgt_mask(tgt_seq_len, device)
 
             output = model(source_seq, target_seq[:, :-1], tgt_mask=tgt_mask)
@@ -117,13 +121,12 @@ try:
             source_seq = batch['source_seq'].to(device)
             target_seq = batch['target_seq'].to(device)
 
-            # Adjust tgt_seq_len for slicing target_seq[:, :-1]
-            tgt_seq_len = target_seq.size(1) - 1
+            tgt_seq_len = target_seq.size(1) - 1  # Adjust for slicing target_seq[:, :-1]
             tgt_mask = create_tgt_mask(tgt_seq_len, device)
 
             optimizer.zero_grad()
 
-            # Forward pass with adjusted tgt_mask
+            # Forward pass
             output = model(source_seq, target_seq[:, :-1], tgt_mask=tgt_mask)
             loss = criterion(output.reshape(-1, output.size(-1)), target_seq[:, 1:].reshape(-1))
 
@@ -159,3 +162,11 @@ except KeyboardInterrupt:
     }
     torch.save(checkpoint, checkpoint_path)
     print("Checkpoint saved.")
+
+# Log the final model to WANDB as an artifact
+artifact = wandb.Artifact("transformer-model", type="model")
+artifact.add_file(checkpoint_path)
+wandb.log_artifact(artifact)
+print("Model uploaded to WANDB.")
+
+wandb.finish()

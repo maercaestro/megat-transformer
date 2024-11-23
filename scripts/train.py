@@ -86,6 +86,11 @@ if os.path.isfile(checkpoint_path):
         model.load_state_dict(checkpoint)
         print("Loaded model weights only. Starting from epoch 0 without optimizer state.")
 
+# Helper function to create a square mask for the target sequence
+def create_tgt_mask(tgt_seq_len, device):
+    mask = torch.tril(torch.ones((tgt_seq_len, tgt_seq_len), device=device)).bool()
+    return mask.unsqueeze(0).unsqueeze(1)  # Shape: [1, 1, tgt_seq_len, tgt_seq_len]
+
 # Helper function to calculate validation loss
 def evaluate_loss(model, val_loader):
     model.eval()
@@ -96,7 +101,7 @@ def evaluate_loss(model, val_loader):
             target_seq = batch['target_seq'].to(device)
 
             tgt_seq_len = target_seq.size(1)
-            tgt_mask = torch.tril(torch.ones(tgt_seq_len, tgt_seq_len, device=device)).bool()
+            tgt_mask = create_tgt_mask(tgt_seq_len, device)
 
             output = model(source_seq, target_seq[:, :-1], tgt_mask=tgt_mask)
             loss = criterion(output.reshape(-1, output.size(-1)), target_seq[:, 1:].reshape(-1))
@@ -113,7 +118,7 @@ try:
             target_seq = batch['target_seq'].to(device)
 
             tgt_seq_len = target_seq.size(1)
-            tgt_mask = torch.tril(torch.ones(tgt_seq_len, tgt_seq_len, device=device)).bool()
+            tgt_mask = create_tgt_mask(tgt_seq_len, device)
 
             optimizer.zero_grad()
             output = model(source_seq, target_seq[:, :-1], tgt_mask=tgt_mask)

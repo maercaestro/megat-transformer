@@ -8,6 +8,7 @@ import pandas as pd
 import wandb
 from config.config import load_config
 import os
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 # Check for GPU availability
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -112,7 +113,14 @@ def evaluate_loss(model, val_loader):
             total_loss += loss.item()
     return total_loss / len(val_loader)
 
-# Training loop with validation loss evaluation
+# Define early stopping parameters
+early_stopping_patience = 20  # Number of epochs with no improvement before stopping
+epochs_no_improve = 0
+best_val_loss = float('inf')
+
+# Define learning rate scheduler
+scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5, verbose=True)
+
 try:
     for epoch in range(start_epoch, EPOCHS):
         model.train()
@@ -130,19 +138,26 @@ try:
             output = model(source_seq, target_seq[:, :-1], tgt_mask=tgt_mask)
             loss = criterion(output.reshape(-1, output.size(-1)), target_seq[:, 1:].reshape(-1))
 
+            # Backward pass and optimization
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)  # Gradient clipping
             optimizer.step()
 
             total_loss += loss.item()
 
+        # Calculate average training loss for the epoch
         avg_train_loss = total_loss / len(train_loader)
-        val_loss = evaluate_loss(model, val_loader)
 
-        print(f"Epoch [{epoch + 1}/{EPOCHS}], Train Loss: {avg_train_loss:.4f}, Val Loss: {val_loss:.4f}")
+        # Calculate validation loss
+        val_loss = evaluate_loss(model, val_loader)
 
         # Log metrics to WANDB
         wandb.log({"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": val_loss})
+
+        # Step the learning rate scheduler based on validation loss
+        scheduler.step(val_loss)
+
+        print(f"Epoch [{epoch + 1}/{EPOCHS}], Train Loss: {avg_train_loss:.4f}, Val Loss: {val_loss:.4f}")
 
         # Save model checkpoint
         checkpoint = {
@@ -152,6 +167,17 @@ try:
         }
         torch.save(checkpoint, checkpoint_path)
         print(f"Checkpoint saved at {checkpoint_path}")
+
+        # Early stopping logic
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            epochs_no_improve = 0
+        else:
+            epochs_no_improve += 1
+
+        if epochs_no_improve == early_stopping_patience:
+            print("Early stopping triggered. Training stopped.")
+            break
 
 except KeyboardInterrupt:
     print("Training interrupted. Saving checkpoint...")
@@ -163,7 +189,7 @@ except KeyboardInterrupt:
     torch.save(checkpoint, checkpoint_path)
     print("Checkpoint saved.")
 
-# Log the final model to WANDB as an artifact
+# Log the final model to WANDB
 artifact = wandb.Artifact("transformer-model", type="model")
 artifact.add_file(checkpoint_path)
 wandb.log_artifact(artifact)

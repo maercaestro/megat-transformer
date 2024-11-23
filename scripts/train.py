@@ -117,10 +117,13 @@ try:
             source_seq = batch['source_seq'].to(device)
             target_seq = batch['target_seq'].to(device)
 
-            tgt_seq_len = target_seq.size(1)
+            # Adjust tgt_seq_len for slicing target_seq[:, :-1]
+            tgt_seq_len = target_seq.size(1) - 1
             tgt_mask = create_tgt_mask(tgt_seq_len, device)
 
             optimizer.zero_grad()
+
+            # Forward pass with adjusted tgt_mask
             output = model(source_seq, target_seq[:, :-1], tgt_mask=tgt_mask)
             loss = criterion(output.reshape(-1, output.size(-1)), target_seq[:, 1:].reshape(-1))
 
@@ -156,11 +159,3 @@ except KeyboardInterrupt:
     }
     torch.save(checkpoint, checkpoint_path)
     print("Checkpoint saved.")
-
-# Log the final model to WANDB as an artifact
-artifact = wandb.Artifact("transformer-model", type="model")
-artifact.add_file(checkpoint_path)
-wandb.log_artifact(artifact)
-print("Model uploaded to WANDB.")
-
-wandb.finish()

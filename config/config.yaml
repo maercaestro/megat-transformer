@@ -8,8 +8,8 @@ data:
 # Model settings
 model:
   num_layers: 6
-  d_model: 512
-  num_heads: 8  # Number of heads
+  d_model: 1024
+  num_heads: 16  # Number of heads
   d_ff: 2048
   src_vocab_size: 96038  # Vocabulary size for source
   tgt_vocab_size: 96038  # Vocabulary size for target
@@ -19,6 +19,6 @@ model:
 # Training settings
 training:
   batch_size: 32
-  learning_rate: 0.00001
+  learning_rate: 1e-5
   epochs: 40
   checkpoint_dir: "checkpoints/"

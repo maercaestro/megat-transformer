@@ -60,7 +60,7 @@ model = Transformer(
     src_vocab_size=len(source_vocab.vocab),
     tgt_vocab_size=len(target_vocab.vocab),
     max_len=MAX_LEN,
-    dropout=config["model"].get("dropout_rate", 0.3)
+    dropout=config["model"].get("dropout_rate",0.1)
 ).to(device)
 
 # Watch the model with WANDB

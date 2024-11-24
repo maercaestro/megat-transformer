@@ -4,7 +4,7 @@ import torch
 from dataset.custom_dataset import CustomDataset, BuildVocabulary
 from src.transformer import Transformer
 from config.config import load_config
-from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
+from nltk.translate.bleu_score import corpus_bleu, SmoothingFunction
 import wandb
 
 # Check for GPU
@@ -60,9 +60,10 @@ def generate_translation(model, src_seq, src_vocab, tgt_vocab, max_len=50):
     rev_vocab = {idx: token for token, idx in tgt_vocab.vocab.items()}
     return " ".join([rev_vocab[idx] for idx in tgt_seq if idx in rev_vocab])
 
-# BLEU evaluation function
-def evaluate_bleu(model, dataset, src_vocab, tgt_vocab):
-    total_bleu = 0
+# BLEU evaluation function (corpus-level BLEU)
+def evaluate_bleu_corpus(model, dataset, src_vocab, tgt_vocab):
+    references = []
+    hypotheses = []
     rev_src_vocab = {idx: token for token, idx in src_vocab.vocab.items()}
     rev_tgt_vocab = {idx: token for token, idx in tgt_vocab.vocab.items()}
     smooth_fn = SmoothingFunction().method1
@@ -79,11 +80,13 @@ def evaluate_bleu(model, dataset, src_vocab, tgt_vocab):
         translation = generate_translation(model, src_seq_text, src_vocab, tgt_vocab).split()
         reference = ref_text.split()
         
-        # Calculate BLEU for this sample with smoothing
-        total_bleu += sentence_bleu([reference], translation, smoothing_function=smooth_fn)
+        # Append to references and hypotheses
+        references.append([reference])  # Corpus BLEU expects references as a list of lists
+        hypotheses.append(translation)
 
-    avg_bleu = total_bleu / len(dataset)
-    print(f"Average BLEU Score: {avg_bleu:.4f}")
+    # Calculate corpus BLEU
+    corpus_bleu_score = corpus_bleu(references, hypotheses, smoothing_function=smooth_fn)
+    print(f"Corpus BLEU Score: {corpus_bleu_score:.4f}")
 
 # Run BLEU evaluation
-evaluate_bleu(model, test_dataset, source_vocab, target_vocab)
+evaluate_bleu_corpus(model, test_dataset, source_vocab, target_vocab)

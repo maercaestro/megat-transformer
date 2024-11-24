@@ -113,13 +113,10 @@ def evaluate_loss(model, val_loader):
             total_loss += loss.item()
     return total_loss / len(val_loader)
 
-# Define early stopping parameters
+# Training loop with early stopping but no learning rate adjustment
 early_stopping_patience = 20  # Number of epochs with no improvement before stopping
 epochs_no_improve = 0
 best_val_loss = float('inf')
-
-# Define learning rate scheduler
-scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5, verbose=True)
 
 try:
     for epoch in range(start_epoch, EPOCHS):
@@ -151,13 +148,10 @@ try:
         # Calculate validation loss
         val_loss = evaluate_loss(model, val_loader)
 
+        print(f"Epoch [{epoch + 1}/{EPOCHS}], Train Loss: {avg_train_loss:.4f}, Val Loss: {val_loss:.4f}")
+
         # Log metrics to WANDB
         wandb.log({"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": val_loss})
-
-        # Step the learning rate scheduler based on validation loss
-        scheduler.step(val_loss)
-
-        print(f"Epoch [{epoch + 1}/{EPOCHS}], Train Loss: {avg_train_loss:.4f}, Val Loss: {val_loss:.4f}")
 
         # Save model checkpoint
         checkpoint = {

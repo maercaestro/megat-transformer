@@ -68,7 +68,7 @@ wandb.watch(model, log="all")
 
 # Define loss function and optimizer with weight decay
 criterion = nn.CrossEntropyLoss(ignore_index=source_vocab.vocab["<pad>"]).to(device)
-optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=1e-4)  # Added weight decay
+optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)  # Added weight decay
 
 # Set checkpoint paths
 checkpoint_path = "/root/checkpoints/latest_checkpoint.pth"

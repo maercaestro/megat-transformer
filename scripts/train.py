@@ -60,7 +60,7 @@ model = Transformer(
     src_vocab_size=len(source_vocab.vocab),
     tgt_vocab_size=len(target_vocab.vocab),
     max_len=MAX_LEN,
-    dropout=config["model"].get("dropout_rate",0.1)
+    dropout=config["model"].get("dropout_rate",0.2)
 ).to(device)
 
 # Watch the model with WANDB
@@ -114,7 +114,7 @@ def evaluate_loss(model, val_loader):
     return total_loss / len(val_loader)
 
 # Training loop with early stopping but no learning rate adjustment
-early_stopping_patience = 20  # Number of epochs with no improvement before stopping
+early_stopping_patience = 5  # Number of epochs with no improvement before stopping
 epochs_no_improve = 0
 best_val_loss = float('inf')
 

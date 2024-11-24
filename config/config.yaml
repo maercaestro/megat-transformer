@@ -1,6 +1,6 @@
 # Data settings
 data:
-  dataset_path: "dataset/combined_dataset_50000.csv"
+  dataset_path: "dataset/combined_dataset_100k.csv"
   source_max_len: 37
   target_max_len: 43
   pad_token: "<pad>"
@@ -20,5 +20,5 @@ model:
 training:
   batch_size: 32
   learning_rate: 0.000001
-  epochs: 100
+  epochs: 200
   checkpoint_dir: "checkpoints/"

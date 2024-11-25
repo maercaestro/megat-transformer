@@ -1,6 +1,6 @@
 # Data settings
 data:
-  dataset_path: "dataset/cleaned_dataset_100k.csv"
+  dataset_path: "dataset/combined_dataset_100k.csv"
   source_max_len: 37
   target_max_len: 43
   pad_token: "<pad>"

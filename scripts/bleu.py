@@ -40,9 +40,14 @@ model = Transformer(
 
 # Load latest checkpoint and extract model weights
 checkpoint_path = "/root/checkpoints/latest_checkpoint.pth"
-checkpoint = torch.load(checkpoint_path, map_location=device)  # Load to appropriate device
-model.load_state_dict(checkpoint["model_state_dict"])  # Load only the model weights
-model.eval()
+try:
+    checkpoint = torch.load(checkpoint_path, map_location=device)  # Load to appropriate device
+    model.load_state_dict(checkpoint["model_state_dict"])  # Load only the model weights
+    model.eval()
+    print("Model loaded successfully. Evaluation process starting...")
+except Exception as e:
+    print(f"Error loading model checkpoint: {e}")
+    exit()
 
 # Helper function to generate translations
 def generate_translation(model, src_seq, src_vocab, tgt_vocab, max_len=50):
@@ -67,6 +72,8 @@ def evaluate_bleu_corpus(model, dataset, src_vocab, tgt_vocab):
     rev_src_vocab = {idx: token for token, idx in src_vocab.vocab.items()}
     rev_tgt_vocab = {idx: token for token, idx in tgt_vocab.vocab.items()}
     smooth_fn = SmoothingFunction().method1
+
+    print("Evaluating BLEU score on test dataset...")
     
     for i in range(len(dataset)):
         source_seq = dataset[i]["source_seq"]

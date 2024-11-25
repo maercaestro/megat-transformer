@@ -10,6 +10,10 @@ from config.config import load_config
 import os
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
+
+
+
+
 # Check for GPU availability
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
@@ -66,9 +70,29 @@ model = Transformer(
 # Watch the model with WANDB
 wandb.watch(model, log="all")
 
+class WarmupScheduler(torch.optim.lr_scheduler._LRScheduler):
+    def __init__(self, optimizer, d_model, warmup_steps, last_epoch=-1):
+        self.d_model = d_model
+        self.warmup_steps = warmup_steps
+        super(WarmupScheduler, self).__init__(optimizer, last_epoch)
+
+    def get_lr(self):
+        step = max(1, self.last_epoch + 1)  # Avoid division by zero
+        scale = self.d_model ** -0.5
+        lr = scale * min(step ** -0.5, step * self.warmup_steps ** -1.5)
+        return [base_lr * lr for base_lr in self.base_lrs]
+
+
 # Define loss function and optimizer with weight decay
 criterion = nn.CrossEntropyLoss(ignore_index=source_vocab.vocab["<pad>"]).to(device)
-optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)  # Added weight decay
+
+# Define optimizer
+optimizer = optim.Adam(model.parameters(), lr=0.0, betas=(0.9, 0.98), eps=1e-9)
+
+# Add warm-up scheduler
+warmup_steps = config["training"].get("warmup_steps", 4000)  # Default warm-up steps
+scheduler = WarmupScheduler(optimizer, d_model=D_MODEL, warmup_steps=warmup_steps)  
+
 
 # Set checkpoint paths
 checkpoint_path = "/root/checkpoints/latest_checkpoint.pth"
@@ -139,6 +163,7 @@ try:
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)  # Gradient clipping
             optimizer.step()
+            scheduler.step()  # Update learning rate
 
             total_loss += loss.item()
 
@@ -151,7 +176,12 @@ try:
         print(f"Epoch [{epoch + 1}/{EPOCHS}], Train Loss: {avg_train_loss:.4f}, Val Loss: {val_loss:.4f}")
 
         # Log metrics to WANDB
-        wandb.log({"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": val_loss})
+        wandb.log({
+            "epoch": epoch + 1,
+            "train_loss": avg_train_loss,
+            "val_loss": val_loss,
+            "lr": scheduler.get_last_lr()[0]
+        })
 
         # Save model checkpoint
         checkpoint = {
@@ -183,10 +213,11 @@ except KeyboardInterrupt:
     torch.save(checkpoint, checkpoint_path)
     print("Checkpoint saved.")
 
-# Log the final model to WANDB
+# Log the final model as a WANDB artifact
 artifact = wandb.Artifact("transformer-model", type="model")
 artifact.add_file(checkpoint_path)
 wandb.log_artifact(artifact)
 print("Model uploaded to WANDB.")
 
 wandb.finish()
+

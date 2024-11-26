@@ -20,6 +20,6 @@ model:
 training:
   warmup_steps: 4000
   batch_size: 32
-  learning_rate: 0.000001
-  epochs: 400
+  learning_rate: 0.00001
+  epochs: 300
   checkpoint_dir: "checkpoints/"

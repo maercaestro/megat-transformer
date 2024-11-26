@@ -71,16 +71,18 @@ model = Transformer(
 wandb.watch(model, log="all")
 
 class WarmupScheduler(torch.optim.lr_scheduler._LRScheduler):
-    def __init__(self, optimizer, d_model, warmup_steps, last_epoch=-1):
+    def __init__(self, optimizer, d_model, warmup_steps, scale_factor=2.0, last_epoch=-1):
         self.d_model = d_model
         self.warmup_steps = warmup_steps
+        self.scale_factor = scale_factor  # New scaling factor
         super(WarmupScheduler, self).__init__(optimizer, last_epoch)
 
     def get_lr(self):
         step = max(1, self.last_epoch + 1)  # Avoid division by zero
-        scale = self.d_model ** -0.5
+        scale = self.scale_factor * (self.d_model ** -0.5)  # Amplified scale
         lr = scale * min(step ** -0.5, step * self.warmup_steps ** -1.5)
-        return [base_lr * lr for base_lr in self.base_lrs]
+        return [max(1e-5, base_lr * lr) for base_lr in self.base_lrs]  # Ensure a minimum LR
+
 
 
 # Define loss function and optimizer with weight decay

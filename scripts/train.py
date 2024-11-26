@@ -87,7 +87,7 @@ class WarmupScheduler(torch.optim.lr_scheduler._LRScheduler):
 criterion = nn.CrossEntropyLoss(ignore_index=source_vocab.vocab["<pad>"]).to(device)
 
 # Define optimizer
-optimizer = optim.Adam(model.parameters(), lr=0.0, betas=(0.9, 0.98), eps=1e-9)
+optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, betas=(0.9, 0.98), eps=1e-9)
 
 # Add warm-up scheduler
 warmup_steps = config["training"].get("warmup_steps", 4000)  # Default warm-up steps

@@ -140,7 +140,7 @@ def evaluate_loss(model, val_loader):
     return total_loss / len(val_loader)
 
 # Training loop with early stopping but no learning rate adjustment
-early_stopping_patience = 5  # Number of epochs with no improvement before stopping
+early_stopping_patience = 30  # Number of epochs with no improvement before stopping
 epochs_no_improve = 0
 best_val_loss = float('inf')
 
